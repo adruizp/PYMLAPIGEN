@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %} Dataset {% endblock %}
+
+{% block content %}
+<h1>Dataset</h1>
+
+<p> Download as <a href="{{ url_for('datasetApi') }}">JSON</a>, <a href="{{ url_for('dataset') }}?download=CSV">CSV</a></p>
+
+<div id="filterDiv" class="row g-3 align-items-center">
+    <div class="col-auto">
+        <select name="filterColumn" id="filterColumn" class="form-select" required><br>
+            {% for item in headers %}
+                <option value="{{ item }}">{{ item }}</option>
+            {% endfor %} 
+        </select>
+    </div>
+    <div class="col">
+        <input type="text" id="filterInput" onkeyup="filter()" placeholder="Filter..." class="form-control">
+    </div>
+</div>
+
+<div id="datasetTable" class="mx-5 mt-3 table-responsive">
+    <table class="table table-sortable " id="datasetTable">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                {% for item in headers %}
+                <th scope="col">{{ item }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for feature in dataset %}
+            <tr> 
+                <td class="rowIndex">{{loop.index}}</td>
+                {% for value in feature %}
+                <td> {{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/sortTable.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filterTable.js') }}"></script>
+{% endblock %}

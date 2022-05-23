@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {% block title %} Machine Learning Settings {% endblock %} {% block content %}
+<h1> Machine Learning Settings </h1>
+<form method="POST" action="" enctype="multipart/form-data">
+    <div class="form-group row mt-3">
+        <label for="inputLabel" class="col-sm-1 col-form-label"> Label: </label>
+        <div class="col-sm-2">
+            <select name="inputLabel" id="inputLabel" class="form-select" required>
+                {% for label in labels %}
+                <option value="{{ label }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-1 col-form-label" >
+            <img src="{{url_for('static', filename='resources/tooltip.png')}}" class="img-fluid toolimage" data-bs-toggle="tooltip" data-bs-placement="top" title="In supervised learning, the answer or result portion of an example.">
+        </div>
+    </div>
+
+    <div class="form-group row mt-3">
+        <label for="modelType" class="col-sm-1 col-form-label"> Algorithm: </label>
+        <div class="col-sm-2">
+            <select name="modelType" id="modelType" class="form-select">
+
+                <optgroup label="Classification">
+                    <option value="GNB">Gaussian Naive Bayes</option>
+                    <option value="SVC">Support Vector Machine</option>
+                    <option value="KNN">K-Neighbors Classifier</option>
+                    <option value="DT">Decision Tree Classifier</option>
+                    <option value="RF">Random Forest Classifier</option>
+                </optgroup label="Classification">
+                <optgroup label="Regression">
+                    <option value="LR">Linear Regression</option>
+                    <option value="SVR">Support Vector Machine</option>
+                    <option value="SGDR">SGD Regressor</option>
+                    <option value="KR">Kernel Ridge</option>
+                    <option value="GBR">Gradient Boosting Regressor</option>
+                </optgroup label="Regression">
+                <optgroup label="Clustering">
+                    <option value="KM">K-Means</option>
+                    <option value="AP">Affinity Propagation</option>
+                    <option value="MS">Mean Shift</option>
+                    <option value="B">Birch</option>
+                </optgroup label="Clustering">
+            </select>
+        </div>
+        <div class="col-sm-1 col-form-label" >
+            <img src="{{url_for('static', filename='resources/tooltip.png')}}" class="img-fluid toolimage" data-bs-toggle="tooltip" data-bs-placement="top" title="Selects the Machine Learning problem type and the algorithm that model will execute.">
+        </div>
+    </div>
+    <div class="mt-3">  
+        <a href="{{ url_for('get_load_1') }}" class="btn btn-back">Back</a>
+        <input type="submit" value="Next" class="btn ms-1">
+    </div>
+</form>
+{% endblock %}

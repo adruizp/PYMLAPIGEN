@@ -1,0 +1,35 @@
+{% extends 'base.html' %} {% block title %} Metrics {% endblock %}
+{% block content %}
+<h1>Metrics</h1>
+
+<div id="datasetTable" class="mx-5 mt-3 table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                {% for item in headers %}
+                <th scope="col"> {{ item }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% for metric in metrics %}
+                {% if metric is iterable %}
+                <td>
+                    {% for row in metric %}
+                    {% for value in row %}
+                    {{ value }} &nbsp; &nbsp;
+                    {% endfor %}
+                    <br>
+                    {% endfor %}
+                </td>
+                {% else %}
+                <td> {{ metric }}</td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,149 @@
+.btn {
+    background-color: #F05454;
+    color: #FFFF;
+}
+
+.btn:hover {
+    background-color: #9e3a3a;
+    color: #FFFF;
+}
+
+.btn-back {
+    background-color: #93656A;
+    color: #FFFF;
+}
+
+.btn-back:hover {
+    background-color: #69464a;
+    color: #FFFF;
+}
+
+.form-check-input:checked {
+    background-color: #F05454;
+    border-color: #9e3a3a;
+    border: #8a3333;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #9e3a3a;
+    background-color: #ffe7e7;
+    box-shadow: inset 0 calc(var(--bs-accordion-border-width) * -1) 0 var(--bs-accordion-border-color);
+}
+
+.form-range::-webkit-slider-thumb {
+    background: #9e3a3a;
+  }
+
+.form-range::-webkit-slider-thumb:active {
+    background-color: #F05454;
+    box-shadow: #9e3a3a;
+}
+
+a{
+    color: #9e3a3a
+}
+
+a:hover{
+    color: #802f2f
+}
+
+.toolimage{
+    height: 20px;
+}
+
+nav {
+    background-color: #F05454;
+}
+
+main {
+    padding: 10px 20px;
+}
+
+footer {
+    font-size: 13px;
+    color: #888;
+    border-top: 1px solid #888;
+    margin-top: 25px;
+    text-align: center;
+    padding: 10px;
+
+}
+
+
+.rowIndex {
+    font-weight: bold;
+}
+
+
+.table, .table th, .table td{
+    border: 1px solid black;
+}
+
+.table th{
+    background-color: #ffe7e7;
+}
+
+.table-sortable th {
+    cursor: pointer;
+}
+
+.table-sortable .th-sort-asc:after {
+    content: "\25b4"
+}
+
+.table-sortable .th-sort-desc:after {
+    content: "\25be"
+}
+
+.table-sortable .th-sort-asc:after,
+.table-sortable .th-sort-desc:after {
+    margin-left: 5px
+}
+
+.table-sortable .th-sort-asc,
+.table-sortable .th-sort-desc {
+    background-color: #DA909A;
+}
+
+
+.unusedHeader {
+    background-color: black !important;
+    color: white !important;
+}
+
+.unusedValue {
+    background-color: #dadada !important;
+}
+
+
+.labelHeader {
+    background-color: #5dc2c2 !important;
+}
+
+.labelValue {
+    background-color: #acf3f3 !important;
+}
+
+
+.nullRow {
+    background-color: #f7baec !important;
+}
+
+.Nan {
+    background-color: #74486c !important;
+    color: #f5f5f5 !important;
+}
+
+
+.lastHeader {
+    background-color: #9bb67d !important;
+}
+
+.lastValue {
+    background-color: #d3e0ac !important;
+}
+
+.Dropped {
+    background-color: #afbd8e !important;
+}
+

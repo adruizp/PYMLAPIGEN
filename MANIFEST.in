@@ -1,0 +1,3 @@
+graft pymlapigen/static
+graft pymlapigen/templates
+global-exclude *.pyc

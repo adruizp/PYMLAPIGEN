@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <title>{% block title %} Demo {% endblock %}</title>
+    {% block styles %}
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css' ) }}">
+
+    <!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css' )}}">
+
+    {% endblock %}
+
+    {% endblock %}
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('home') }}">PyMLAPIGen</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page"
+                            href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if request.endpoint == 'get_load_0' or request.endpoint == 'get_load_1' or request.endpoint == 'get_load_2' or request.endpoint == 'get_load_3'%}active{% endif %}"
+                            href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            API
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{url_for('get_load_0')}}">Generate new</a></li>
+                            {% if api %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            {% if api.step > 0 %}
+                            <li><a class="dropdown-item" href="{{url_for('get_load_1')}}">Null settings</a></li>
+                            {% endif %}
+                            {% if api.step > 1 %}
+                            <li><a class="dropdown-item" href="{{url_for('get_load_2')}}">ML settings</a></li>
+                            {% endif %}
+                            {% if api.step > 2 %}
+                            <li><a class="dropdown-item" href="{{url_for('get_load_3')}}">ML parameters</a>
+                            </li>
+                            {% endif %}
+
+                            {% if api.ready %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li><a class="dropdown-item" href="{{url_for('destroy')}}">Destroy</a>
+                            </li>
+                            {% endif %}
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% if api.ready %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dataset' %}active{% endif %}"
+                            href="{{url_for('dataset')}}">Dataset</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'metrics' %}active{% endif %}"
+                            href="{{url_for('metrics')}}">Metrics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'model' %}active{% endif %}"
+                            href="{{url_for('model')}}">Model</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'predict' %}active{% endif %}"
+                            href="{{url_for('predict')}}">Predict</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'graphs' %}active{% endif %}"
+                            href="{{url_for('graphs')}}">Graphs</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        {% block footer %}
+        <small>
+            Python Machine Learning REST API Generator
+        </small> {% endblock %}
+    </footer>
+    {% block scripts %}
+    <!-- Bootstrap -->
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js' ) }}"></script>
+    <!-- Tooltips Bootstrap -->
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+    {% endblock %}
+</body>
+
+</html>

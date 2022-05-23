@@ -1,0 +1,6 @@
+Flask
+Flask_Mail
+numpy
+pandas
+scikit_learn
+scikit_plot

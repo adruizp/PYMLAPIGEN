@@ -1,0 +1,33 @@
+{% extends 'base.html' %} {% block title %} Model {% endblock %} {% block styles %} {{ super() }}
+<style>
+    table,
+    th,
+    td {
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid;
+    }
+</style>
+{% endblock %} {% block content %}
+<h1>Model</h1>
+
+<div id="datasetTable" class="mx-5 mt-3 table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                {% for item in headers %}
+                <th> {{ item }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% for metric in metrics %}
+                <td> {{ metric }}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

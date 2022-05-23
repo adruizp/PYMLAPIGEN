@@ -1,0 +1,34 @@
+{% extends 'base.html' %} {% block title %} Null settings {% endblock %} {% block content %}
+<h1> Null settings </h1>
+<div class="mx-2">
+    <form method="POST" action="" enctype="multipart/form-data">
+        <label class="mt-1"> What to do with <strong>null</strong> or <strong>nan</strong> values: </label>
+        <div class="form-check mt-3">
+            <input type="radio" name="nan" value="drop" class="form-check-input" checked>
+            <label for="drop" class="form-check-label">Drop missing values rows.</label>
+            <span class="ms-2">
+                <img src="{{url_for('static', filename='resources/tooltip.png')}}" class="img-fluid toolimage"
+                    data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="This option deletes from the uploaded dataset those rows with any null or nan value.">
+            </span>
+        </div>
+        <div class="form-check mt-3">
+            <input type="radio" name="nan" value="fill" class="form-check-input">
+            <label for="fill" class="form-check-label">Fill missing values with:</label>
+            <input type="text" id="fillvalue" name="fillvalue" value="-1" required>
+            <span class="ms-2">
+                <img src="{{url_for('static', filename='resources/tooltip.png')}}" class="img-fluid toolimage"
+                    data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="This option replaces any null or nan value with the input value.">
+            </span>
+        </div>
+
+        <div class="mt-3">
+            <a href="{{ url_for('get_load_0') }}" class="btn btn-back">Back</a>
+            <input type="submit" value="Next" class="btn ms-1">
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}

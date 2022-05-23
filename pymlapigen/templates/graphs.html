@@ -1,0 +1,13 @@
+{% extends 'base.html' %} {% block title %} Graphs {% endblock %} 
+{% block content %}
+<h1>Graphs</h1>
+
+<div id="graph">
+    {% if data is defined %}
+        {% for graph in data %}
+            <img src='data:image/png;base64,{{ graph }} '/> 
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% endblock %}
