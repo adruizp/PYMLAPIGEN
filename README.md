@@ -11,3 +11,5 @@ To install and use this tool:
 * Deploy and run the application
     * `pymlapigen`
 * Visit [localhost:5000](http://localhost:5000)
+
+You can either clone the repository and run `python run.py`.
