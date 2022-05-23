@@ -334,7 +334,10 @@ def metrics():
     if api_generator is None or not api_generator.ready:
         return redirect(url_for('get_load_0'))
 
-    return render_template("metrics.html", api=api_generator, headers=api_generator.metrics.keys(), metrics=api_generator.metrics.values())
+    inputLabel = api_generator.getInputLabel()
+    x_test, y_test, predictions = api_generator.getPredictions()
+
+    return render_template("metrics.html", api=api_generator, headers=api_generator.metrics.keys(), metrics=api_generator.metrics.values(), test_headers = x_test.columns, test_label = inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
 
 
 # Ruta MODEL.

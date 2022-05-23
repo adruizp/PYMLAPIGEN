@@ -32,4 +32,44 @@
     </table>
 </div>
 
+<h2 class="mt-3">Test set evaluation</h2>
+
+<div id="datasetTable" class="mx-5 mt-3 table-responsive">
+    <table class="table table-sortable " id="datasetTable">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                {% for item in test_headers %}
+                <th scope="col">{{ item }}</th>
+                {% endfor %}
+                <th scope="col" class="labelHeader">{{ test_label }}</th>
+                <th scope="col" class="lastHeader" >Predicted label</th>
+                <th scope="col">Good prediction?</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for feature in x_test %}
+            <tr> 
+                <td class="rowIndex">{{loop.index}}</td>
+                {% for value in feature %}
+                <td> {{ value }}</td>
+                {% endfor %}
+                <td class="labelValue"> {{ y_test[loop.index - 1] }}</td>
+                <td class="lastValue"> {{ predictions[loop.index - 1] }}</td>
+                <td>{% if y_test[loop.index - 1]==predictions[loop.index - 1]%}Yes{% else %}No{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/sortTable.js') }}"></script>
 {% endblock %}

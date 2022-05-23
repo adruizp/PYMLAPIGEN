@@ -368,6 +368,9 @@ class API_Generator:
         """
         return self.datasetDF.drop(self.inputLabel, axis=1)
 
+    def getInputLabel(self):
+        return self.inputLabel
+
     def getPossibleLabels(self):
         """Devuelve los posibles valores de la variable objetivo. Utilizado para experimentos de Clasificación.
 
@@ -397,6 +400,12 @@ class API_Generator:
                 return "Multi-Label Classification"
         else:
             return self.mltype
+
+    def getPredictions(self):
+
+        noOHE = self.datasetDF.iloc[self.x_test.index].drop(self.inputLabel, axis=1)
+
+        return noOHE, self.y_test, self.predictions
 
     def predictNewValues(self, inputData, typeData="JSON", separator=",", toApi = False):
         """Predice nuevos valores utilizando el modelo del experimento
