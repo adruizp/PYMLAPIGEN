@@ -22,6 +22,15 @@
                     title="This option replaces any null or nan value with the input value.">
             </span>
         </div>
+        <div class="form-check mt-3">
+            <input type="radio" name="nan" value="mean" class="form-check-input" checked>
+            <label for="drop" class="form-check-label">Replace with the mean value of the column.</label>
+            <span class="ms-2">
+                <img src="{{url_for('static', filename='resources/tooltip.png')}}" class="img-fluid toolimage"
+                    data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="This option replaces any null or nan value with the mean value of its column. Non numerical columns will be filled with the most common value. Columns with no values will be dropped.">
+            </span>
+        </div>
 
         <div class="mt-3">
             <a href="{{ url_for('get_load_0') }}" class="btn btn-back">Back</a>

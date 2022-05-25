@@ -6,18 +6,24 @@
 
 <p> Download as <a href="{{ url_for('datasetApi') }}">JSON</a>, <a href="{{ url_for('dataset') }}?download=CSV">CSV</a></p>
 
-<div id="filterDiv" class="row g-3 align-items-center">
+<div id="filterDiv" class="row g-3 align-items-center filter mb-2">
     <div class="col-auto">
-        <select name="filterColumn" id="filterColumn" class="form-select" required><br>
+        <select class="form-select filterColumn" required><br>
             {% for item in headers %}
                 <option value="{{ item }}">{{ item }}</option>
             {% endfor %} 
         </select>
     </div>
     <div class="col">
-        <input type="text" id="filterInput" onkeyup="filter()" placeholder="Filter..." class="form-control">
+        <input type="text" onkeyup="filter()" placeholder="Filter..." class="form-control filterInput">
+    </div>
+    <div class="col-auto minus" style="display: none;">
+        <img src="{{url_for('static', filename='resources/minus.png')}}" class="img-fluid filterimage" onclick="deletefilter(this)">
     </div>
 </div>
+<div id="aditionalFilters">
+</div>
+<img src="{{url_for('static', filename='resources/plus.png')}}" class="img-fluid filterimage" onclick="addfilter()">
 
 <div id="datasetTable" class="mx-5 mt-3 table-responsive">
     <table class="table table-sortable " id="datasetTable">

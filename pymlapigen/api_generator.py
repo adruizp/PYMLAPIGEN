@@ -85,6 +85,8 @@ class API_Generator:
             self.fillValue = fillValue
             self.datasetDF = self.datasetDF.fillna(int(fillValue)).reset_index(drop=True)
             self.__cleanStringColumns()
+        elif mode=="mean":
+            self.__replaceMean(self.datasetDF)
 
     def __cleanStringColumns(self):
         """Método privado. Este método limpia las columnas que tras haber rellenado los valores nulos queden
@@ -94,6 +96,21 @@ class API_Generator:
         stringColumns = self.datasetDF.select_dtypes(include=[object, 'category'])
         self.datasetDF[stringColumns.columns] = stringColumns.astype(str)
 
+    def __replaceMean(self, dataset):
+        for column in dataset:
+            if len(dataset[column].dropna())==0:
+                # If the column has no values (all null), it will be dropped.
+                dataset.drop(column, axis=1)
+            else:
+                if dataset[column].dtype in ['object', 'category']:
+                    # Most common value
+                    dataset[column] = dataset[column].fillna(dataset[column].mode()[0])
+                else:
+                    # Mean value
+                    dataset[column] = dataset[column].fillna(dataset[column].mean())
+                    
+
+
     def setInputLabel(self, inputLabel):
         """Introduce la variable objetivo del experimento.
 
@@ -102,7 +119,7 @@ class API_Generator:
         """
         self.inputLabel = inputLabel
 
-        if self.nanNullMode != "drop":
+        if self.nanNullMode == "fill":
             self.__dropMissingInputLabelRows()
 
     def __dropMissingInputLabelRows(self):
@@ -586,6 +603,8 @@ class API_Generator:
             inputDf = inputDf.fillna(int(self.fillValue)).reset_index(drop=True)
             stringColumns = inputDf.select_dtypes(include=[object, 'category'])
             inputDf[stringColumns.columns] = stringColumns.astype(str)
+        elif self.nanNullMode=="mean":
+            self.__replaceMean(inputDf)
 
         return inputDf, nullRows
 

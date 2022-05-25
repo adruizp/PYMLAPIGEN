@@ -51,6 +51,15 @@ a:hover{
     height: 20px;
 }
 
+.filterimage{
+    height: 20px;
+}
+
+.filterimage:hover{
+    height: 20px;
+    cursor: pointer;
+}
+
 nav {
     background-color: #F05454;
 }

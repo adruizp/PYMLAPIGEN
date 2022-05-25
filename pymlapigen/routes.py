@@ -260,6 +260,7 @@ def post_load_3():
 
         # Evalúa el modelo
         api_generator.evaluateModel()
+
     except Exception as e:
         print(e)
         return render_template("load_3.html", api=api_generator, error=True, problema=api_generator.getProblem(), algorithm=api_generator.getAlgorithm(), possibleLabels=api_generator.getPossibleLabels(), features=api_generator.getFeatures(), modelParams=api_generator.getAlgorithmParams())
