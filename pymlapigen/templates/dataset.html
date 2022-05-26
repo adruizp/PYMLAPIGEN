@@ -8,14 +8,27 @@
 
 <div id="filterDiv" class="row g-3 align-items-center filter mb-2">
     <div class="col-auto">
-        <select class="form-select filterColumn" required><br>
+        <input type="checkbox" onclick="filter()"  class="form-check-input filterInclude" checked>
+    </div>
+    <div class="col-auto">
+        <select onchange="filter()" class="form-select filterColumn" required><br>
             {% for item in headers %}
                 <option value="{{ item }}">{{ item }}</option>
             {% endfor %} 
         </select>
     </div>
+    <div class="col-auto">
+        <select onchange="filter()" class="form-select filterOp" required><br>
+            <option value="contains">contains</option>
+            <option value="==">==</option>
+            <option value="<"><</option>
+            <option value="<="><=</option>
+            <option value=">">></option>
+            <option value=">=">>=</option>
+        </select>
+    </div>
     <div class="col">
-        <input type="text" onkeyup="filter()" placeholder="Filter..." class="form-control filterInput">
+        <input type="text" onkeyup="filter()" placeholder="Value..." class="form-control filterInput">
     </div>
     <div class="col-auto minus" style="display: none;">
         <img src="{{url_for('static', filename='resources/minus.png')}}" class="img-fluid filterimage" onclick="deletefilter(this)">
