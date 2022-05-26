@@ -1,5 +1,4 @@
 """ Aplicacion Flask """
-from tkinter.messagebox import NO
 from pymlapigen.api_generator import load_csv, load_json
 from pymlapigen import flask_app
 
