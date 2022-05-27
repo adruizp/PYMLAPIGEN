@@ -4,7 +4,7 @@
 {% block content %}
 <h1>Dataset</h1>
 
-<p> Download as <a href="{{ url_for('datasetApi') }}">JSON</a>, <a href="{{ url_for('dataset') }}?download=CSV">CSV</a></p>
+<p> Download as <a href="{{ url_for('datasetApi',apiName=apiName) }}">JSON</a>, <a href="{{ url_for('dataset',apiName=apiName) }}?download=CSV">CSV</a></p>
 
 <div id="filterDiv" class="row g-3 align-items-center filter mb-2">
     <div class="col-auto">

@@ -23,7 +23,12 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-gradient">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('home') }}">PyMLAPIGen</a>
+            <a class="navbar-brand" href="
+            {% if apiName is defined %}
+            {{ url_for('apiHome',apiName=apiName) }}
+            {% else %}
+            {{ url_for('home') }}
+            {% endif %}">PyMLAPIGen</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
@@ -33,27 +38,40 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page"
-                            href="{{ url_for('home') }}">Home</a>
+                            href="{{ url_for('home') }}">
+                            {% if apiName is defined %}
+                            Exit
+                            {% else %}
+                            Home
+                            {% endif %}
+                        </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {% if request.endpoint == 'get_load_0' or request.endpoint == 'get_load_1' or request.endpoint == 'get_load_2' or request.endpoint == 'get_load_3'%}active{% endif %}"
+                        <a class="nav-link dropdown-toggle {% if request.endpoint == 'apiHome' or request.endpoint == 'get_load_0' or request.endpoint == 'get_load_1' or request.endpoint == 'get_load_2' or request.endpoint == 'get_load_3'%}active{% endif %}"
                             href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if apiName is defined %}
+                            Current API: {{apiName}}
+                            {% else %}
                             API
+                            {% endif %}
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{{url_for('get_load_0')}}">Generate new</a></li>
-                            {% if api %}
+                            {% if api is defined %}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             {% if api.step > 0 %}
-                            <li><a class="dropdown-item" href="{{url_for('get_load_1')}}">Null settings</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('get_load_1',apiName=apiName)}}">Null
+                                    settings</a></li>
                             {% endif %}
                             {% if api.step > 1 %}
-                            <li><a class="dropdown-item" href="{{url_for('get_load_2')}}">ML settings</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('get_load_2',apiName=apiName)}}">ML
+                                    settings</a></li>
                             {% endif %}
                             {% if api.step > 2 %}
-                            <li><a class="dropdown-item" href="{{url_for('get_load_3')}}">ML parameters</a>
+                            <li><a class="dropdown-item" href="{{url_for('get_load_3',apiName=apiName)}}">ML
+                                    parameters</a>
                             </li>
                             {% endif %}
 
@@ -62,33 +80,35 @@
                                 <hr class="dropdown-divider">
                             </li>
 
-                            <li><a class="dropdown-item" href="{{url_for('destroy')}}">Destroy</a>
+                            <li><a class="dropdown-item" href="{{url_for('destroy',apiName=apiName)}}">Destroy</a>
                             </li>
                             {% endif %}
                             {% endif %}
                         </ul>
                     </li>
+                    {% if api is defined %}
                     {% if api.ready %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'dataset' %}active{% endif %}"
-                            href="{{url_for('dataset')}}">Dataset</a>
+                            href="{{url_for('dataset',apiName=apiName)}}">Dataset</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'metrics' %}active{% endif %}"
-                            href="{{url_for('metrics')}}">Metrics</a>
+                            href="{{url_for('metrics',apiName=apiName)}}">Metrics</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'model' %}active{% endif %}"
-                            href="{{url_for('model')}}">Model</a>
+                            href="{{url_for('model',apiName=apiName)}}">Model</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'predict' %}active{% endif %}"
-                            href="{{url_for('predict')}}">Predict</a>
+                            href="{{url_for('predict',apiName=apiName)}}">Predict</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'graphs' %}active{% endif %}"
-                            href="{{url_for('graphs')}}">Graphs</a>
+                            href="{{url_for('graphs',apiName=apiName)}}">Graphs</a>
                     </li>
+                    {% endif %}
                     {% endif %}
                 </ul>
             </div>
