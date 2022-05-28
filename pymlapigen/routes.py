@@ -7,7 +7,7 @@ from flask_mail import Mail, Message
 from io import BytesIO
 import os
 import base64
-
+import pickle
 
 """ Módulos locales """
 
@@ -21,8 +21,12 @@ mail = Mail(app=flask_app)
 
 # Generated APIs
 apis = {}
+# apis["importTest"]= pickle.load(open(os.path.join('pymlapigen/',
+#                                  flask_app.config['UPLOAD_FOLDER'], 'prueba.api'), "rb"))
+
 
 # Ruta HOME.
+
 
 @flask_app.route("/")
 def home():
@@ -35,11 +39,11 @@ def home():
 @flask_app.route("/<apiName>")
 def apiHome(apiName):
     global apis
-    
+
     # Si apis[apiName] no esta definido, se retorna al paso 0
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
-        
+
     return render_template("home.html", apiName=apiName, api=apis[apiName], apis=apis)
 
 
@@ -56,13 +60,13 @@ def get_load_0():
 def post_load_0():
 
     global apis
-    
+
     apiName = request.form['apiName']
 
     if apiName in apis:
         return render_template("load_0.html", error="There is already an API generated with that name. Try other name.")
 
-    if apiName=="api":
+    if apiName == "api":
         return render_template("load_0.html", error="The name of the Api cannot be \"api\". Try other name.")
 
     # Obtiene el separador del formulario
@@ -113,7 +117,6 @@ def get_load_1(apiName):
 def post_load_1(apiName):
 
     global apis
-
 
     # Si apis[apiName] no esta definido, se retorna al paso 0
     if apiName not in apis:
@@ -194,7 +197,7 @@ def post_load_2(apiName):
     apis[apiName].step = 3
 
     # Redirecciona al siguiente paso
-    return redirect(url_for('get_load_3',apiName=apiName))
+    return redirect(url_for('get_load_3', apiName=apiName))
 
 # Ruta LOAD. Paso 3.
 
@@ -276,7 +279,6 @@ def post_load_3(apiName):
         positiveLabel = request.form['positiveLabel']
         apis[apiName].setPositiveLabel(positiveLabel)
 
-
     try:
         # Entrena el modelo
         apis[apiName].trainModel()
@@ -287,7 +289,6 @@ def post_load_3(apiName):
     except Exception as e:
         print(e)
         return render_template("load_3.html", apiName=apiName, api=apis[apiName], error=True, problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm(), possibleLabels=apis[apiName].getPossibleLabels(), features=apis[apiName].getFeatures(), modelParams=apis[apiName].getAlgorithmParams())
-
 
     # Si se llega a esta parte del código, significa que el entrenamiento y evaluación de modelo fue completo
 
@@ -302,7 +303,8 @@ def post_load_3(apiName):
             email = request.form['email']
 
             # Parámetros del correo
-            msg = Message('API generation complete', sender='tfgadrianruizparra@gmail.com', recipients=[email])
+            msg = Message('API generation complete',
+                          sender='tfgadrianruizparra@gmail.com', recipients=[email])
             msg.body = "The API has been generated successfully and its currently operable."
 
             # Envia el correo
@@ -314,12 +316,13 @@ def post_load_3(apiName):
     return redirect(url_for('home'))
 
 # Ruta DESTROY.
+
+
 @flask_app.route("/destroy/<apiName>/")
 def destroy(apiName):
     global apis
     del apis[apiName]
     return redirect(url_for('home'))
-
 
 
 # Ruta DATASET.
@@ -333,6 +336,8 @@ def dataset(apiName):
 
     if "download" in request.args:
         if (request.args["download"] == "CSV"):
+            print(os.path.join(flask_app.config['APP_FOLDER'],
+                               flask_app.config['UPLOAD_FOLDER'],  download_CSV(apiName)))
 
             return send_file(os.path.join(flask_app.config['APP_FOLDER'],
                                           flask_app.config['UPLOAD_FOLDER'],  download_CSV(apiName)))
@@ -347,6 +352,8 @@ def download_CSV(apiName):
     return filename
 
 # Ruta METRICS.
+
+
 @flask_app.route("/<apiName>/metrics")
 def metrics(apiName):
     global apis
@@ -358,7 +365,7 @@ def metrics(apiName):
     inputLabel = apis[apiName].getInputLabel()
     x_test, y_test, predictions = apis[apiName].getPredictions()
 
-    return render_template("metrics.html", apiName=apiName, api=apis[apiName], headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers = x_test.columns, test_label = inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
+    return render_template("metrics.html", apiName=apiName, api=apis[apiName], headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, test_label=inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
 
 
 # Ruta MODEL.
@@ -422,7 +429,6 @@ def predict_post(apiName):
                 print(e)
                 return render_template("predict.html", apiName=apiName, api=apis[apiName], error=True)
 
-
     return render_template("predict.html", apiName=apiName, api=apis[apiName], headers=resultPredictHeaders, dataset=resultPredictValues, typeHeader=typeResultHeaders, typeDataset=typeResultValues)
 
 
@@ -445,6 +451,75 @@ def graphs(apiName):
         # Embed the result in the html output.
         data.append(base64.b64encode(buf.getbuffer()).decode("ascii"))
     return render_template("graphs.html", apiName=apiName, api=apis[apiName], data=data)
+
+
+# Ruta EXPORT.
+@flask_app.route("/<apiName>/export")
+def export(apiName):
+    global apis
+
+    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    if apiName not in apis or not apis[apiName].ready:
+        return redirect(url_for('get_load_0'))
+
+    # Generate file
+    pickle.dump(apis[apiName],
+                open(os.path.join(flask_app.config['APP_FOLDER'],
+                                  flask_app.config['UPLOAD_FOLDER'], apiName+".api"), "wb"))
+
+    # Download file
+    return send_file(os.path.join(flask_app.config['APP_FOLDER'],
+                                  flask_app.config['UPLOAD_FOLDER'],  apiName + ".api"))
+
+
+# Ruta IMPORT.
+
+
+@flask_app.route("/import", methods=["GET"])
+def get_import():
+    global apis
+    return render_template("import.html")
+
+
+@flask_app.route("/import", methods=["POST"])
+def post_import():
+
+    global apis
+
+    apiName = request.form['apiName']
+
+    if apiName in apis:
+        return render_template("import.html", error="There is already an API generated with that name. Try other name.")
+
+    if apiName == "api":
+        return render_template("import.html", error="The name of the Api cannot be \"api\". Try other name.")
+
+    # Obtiene el fichero importado
+    uploaded_file = request.files['file']
+
+    # Comprueba que el fichero este subido correctamente
+    if uploaded_file.filename != '':
+
+        # Selecciona el path para alojar el fichero subido
+        file_path = os.path.join(flask_app.config['APP_FOLDER'],
+                                 flask_app.config['UPLOAD_FOLDER'],
+                                 uploaded_file.filename)
+
+        # Guarda el fichero subido en el path seleccionado
+        uploaded_file.save(file_path)
+
+    # Una vez subido el fichero, instancia un nuevo apis[apiName] usando como experimento el csv
+
+    try:
+        apis[apiName] = pickle.load(open(file_path, "rb"))
+
+    except Exception as e:
+        print(e)
+        apis.pop(apiName, None)
+        return render_template("import.html", error="An error has occurred reading the file.")
+
+    # Redirecciona al siguiente paso
+    return redirect(url_for('apiHome', apiName=apiName))
 
 
 """

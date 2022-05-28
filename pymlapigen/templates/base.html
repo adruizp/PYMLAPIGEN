@@ -57,6 +57,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{{url_for('get_load_0')}}">Generate new</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('get_import')}}">Import API</a></li>
                             {% if api is defined %}
                             <li>
                                 <hr class="dropdown-divider">
@@ -81,6 +82,11 @@
                             </li>
 
                             <li><a class="dropdown-item" href="{{url_for('destroy',apiName=apiName)}}">Destroy</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{url_for('export',apiName=apiName)}}">Export API</a>
                             </li>
                             {% endif %}
                             {% endif %}

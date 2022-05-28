@@ -1,5 +1,5 @@
-{% extends 'base.html' %} {% block title %} Generate new API {% endblock %} {% block content %}
-<h1> Generate new API </h1>
+{% extends 'base.html' %} {% block title %} Import API {% endblock %} {% block content %}
+<h1> Import API </h1>
 
 
 {% if error is defined %}
@@ -18,23 +18,14 @@
             </div>
         </div>
     </div>
-    <h2 class="mt-3"> Upload from CSV file </h2>
-    <div class="mx-2">
-        <div class="form-group row">
-            <label for="separator" class="col-sm-1 col-form-label"> Separator: </label>
-            <div class="col-sm-1">
-                <div class="col-sm-8">
-                    <input type="text" id="separator" name="separator" placeholder="," class="form-control" required>
-                </div>
-            </div>
-        </div>
+    <div class="mx-2 mt-3">
         <div class="form-group row mt-3">
             <label for="file" class="col-sm-1 col-form-label"> File: </label>
             <div class="col-sm-3">
                 <input type="file" name="file" class="form-control" required>
             </div>
         </div>
-        <input type="submit" value="Next" class="btn mt-3">
+        <input type="submit" value="Import" class="btn mt-3">
 </form>
 </div>
 {% endblock %}
