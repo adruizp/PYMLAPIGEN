@@ -21,9 +21,6 @@ mail = Mail(app=flask_app)
 
 # Generated APIs
 apis = {}
-# apis["importTest"]= pickle.load(open(os.path.join('pymlapigen/',
-#                                  flask_app.config['UPLOAD_FOLDER'], 'prueba.api'), "rb"))
-
 
 # Ruta HOME.
 
@@ -44,7 +41,7 @@ def apiHome(apiName):
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
-    return render_template("home.html", apiName=apiName, api=apis[apiName], apis=apis)
+    return render_template("home.html", apiName=apiName, api=apis[apiName], apis=apis, label=apis[apiName].getInputLabel(), problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm())
 
 
 # Ruta LOAD. Paso 0.
@@ -313,7 +310,7 @@ def post_load_3(apiName):
     # El atributo ready de la API se marca a True.
     apis[apiName].ready = True
 
-    return redirect(url_for('home'))
+    return redirect(url_for('apiHome',apiName=apiName))
 
 # Ruta DESTROY.
 
