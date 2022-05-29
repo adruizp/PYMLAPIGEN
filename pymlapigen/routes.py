@@ -1,29 +1,29 @@
-""" Aplicacion Flask """
+""" Imports """
 from pymlapigen.api_generator import load_csv, load_json
 from pymlapigen import flask_app
 
-from flask import jsonify, render_template, request, redirect, url_for, send_file
+from flask import jsonify, render_template, request, redirect, url_for, send_file, abort
 from flask_mail import Mail, Message
 from io import BytesIO
 import os
 import base64
 import pickle
 
-""" Módulos locales """
+""" Local modules settings """
 
 mail = Mail(app=flask_app)
 
 """
 
-    Rutas de la aplicación web.
+    Web app routes
 
 """
 
 # Generated APIs
 apis = {}
 
-# Ruta HOME.
 
+# HOME Route.
 
 @flask_app.route("/")
 def home():
@@ -31,21 +31,20 @@ def home():
     return render_template("home.html", apis=apis)
 
 
-# Ruta HOME (api).
+# API HOME Route
 
 @flask_app.route("/<apiName>")
 def apiHome(apiName):
     global apis
 
-    # Si apis[apiName] no esta definido, se retorna al paso 0
+    # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
     return render_template("home.html", apiName=apiName, api=apis[apiName], apis=apis, label=apis[apiName].getInputLabel(), problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm())
 
 
-# Ruta LOAD. Paso 0.
-
+# LOAD Route. Step 0.
 
 @flask_app.route("/load/0", methods=["GET"])
 def get_load_0():
@@ -66,24 +65,24 @@ def post_load_0():
     if apiName == "api":
         return render_template("load_0.html", error="The name of the Api cannot be \"api\". Try other name.")
 
-    # Obtiene el separador del formulario
+    # Gets the form separator
     separator = request.form['separator']
 
-    # Obtiene el fichero (dataset) del formulario
+    # Gets the form dataset file
     uploaded_file = request.files['file']
 
-    # Comprueba que el fichero este subido correctamente
+    # Checks if the file is uploaded successfully
     if uploaded_file.filename != '':
 
-        # Selecciona el path para alojar el fichero subido
+        # Gets the filepath
         file_path = os.path.join(flask_app.config['APP_FOLDER'],
                                  flask_app.config['UPLOAD_FOLDER'],
                                  uploaded_file.filename)
 
-        # Guarda el fichero subido en el path seleccionado
+        # Saves the file in the filepath
         uploaded_file.save(file_path)
 
-    # Una vez subido el fichero, instancia un nuevo apis[apiName] usando como experimento el csv
+    # Once the file is saved, it creates an API instance using the file as dataset
 
     try:
         apis[apiName] = load_csv(file_path, separator=separator)
@@ -93,17 +92,17 @@ def post_load_0():
         apis.pop(apiName, None)
         return render_template("load_0.html", error="An error has occurred reading the file.")
 
-    # Redirecciona al siguiente paso
+    # Redirects to the next step
     return redirect(url_for('get_load_1', apiName=apiName))
 
 
-# Ruta LOAD. Paso 1.
+# LOAD Route. Step 1.
 @flask_app.route("/<apiName>/load/1", methods=["GET"])
 def get_load_1(apiName):
 
     global apis
 
-    # Si apis[apiName] no esta definido, se retorna al paso 0
+    # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
@@ -115,35 +114,35 @@ def post_load_1(apiName):
 
     global apis
 
-    # Si apis[apiName] no esta definido, se retorna al paso 0
+    # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
-    # El atributo ready de la API se marca a False ya que faltan pasos.
+    # API's ready attribute is set to False due to it needs training and evaluation
     apis[apiName].ready = False
 
-    # Procesa los valores nulos y NaN
+    # Process NaN and Null values
     apis[apiName].processNanNull(
         request.form['nan'], request.form['fillvalue'])
 
-    # Fija el paso actual de la carga a 2. Esto habilitará iniciar el paso 2.
+    # Sets the current step to 2. This will enable step 2.
     apis[apiName].step = 2
 
-    # Redirecciona al siguiente paso
+    # Redirects to the next step
     return redirect(url_for('get_load_2', apiName=apiName))
 
 
-# Ruta LOAD. Paso 2.
+# LOAD Route. Step 2.
 @flask_app.route("/<apiName>/load/2", methods=["GET"])
 def get_load_2(apiName):
 
     global apis
 
-    # Si apis[apiName] no esta definido, se retorna al paso 0
+    # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
-    # Si apis[apiName] se encuentra en el paso 1, se retorna al paso 1
+    # If apis[apiName] is on step 1, it will redirect to step 1
     elif apis[apiName].step == 1:
         return redirect(url_for('get_load_1'))
 
@@ -155,22 +154,22 @@ def post_load_2(apiName):
 
     global apis
 
-    # Si apis[apiName] no esta definido, se retorna al paso 0
+    # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
-    # Si apis[apiName] se encuentra en el paso 1, se retorna al paso 1
+    # If apis[apiName] is on step 1, it will redirect to step 1
     elif apis[apiName].step == 1:
         return redirect(url_for('get_load_1'))
 
-    # El atributo ready de la API se marca a False ya que faltan pasos.
+    # API's ready attribute is set to False due to it needs training and evaluation
     apis[apiName].ready = False
 
     # Obtiene la variable objetivo y la carga en la API
     inputLabel = request.form['inputLabel']
     apis[apiName].setInputLabel(inputLabel)
 
-    # Obtiene el algoritmo para el modelo
+    # Gets the algoritmo para el modelo
     modelType = request.form['modelType']
 
     # A partir del algoritmo escogido, se obtiene el tipo de problema ML (Clasificación, Regresión o Clustering)
@@ -190,32 +189,31 @@ def post_load_2(apiName):
     # Carga el tipo de problema ML y el algoritmo en la API
     apis[apiName].setAlgorithm(mltype, modelType)
 
-    # Fija el paso actual de la carga a 3. Esto habilitará iniciar el paso 3.
+    # Sets the current step to 3. This will enable step 3.
     apis[apiName].step = 3
 
-    # Redirecciona al siguiente paso
+    # Redirects to the next step
     return redirect(url_for('get_load_3', apiName=apiName))
 
-# Ruta LOAD. Paso 3.
+# LOAD Route. Step 3.
 
 
 @flask_app.route("/<apiName>/load/3", methods=["GET"])
 def get_load_3(apiName):
     global apis
 
-    # Si apis[apiName] no esta definido, se retorna al paso 0
+    # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
-    # Si apis[apiName] se encuentra en el paso 1, se retorna al paso 1
+    # If apis[apiName] is on step 1, it will redirect to step 1
     elif apis[apiName].step == 1:
         return redirect(url_for('get_load_1'))
 
-    # Si apis[apiName] se encuentra en el paso 2, se retorna al paso 2
+    # If apis[apiName] is on step 2, it will redirect to step 2
     elif apis[apiName].step == 2:
         return redirect(url_for('get_load_2'))
 
-    # Si apis[apiName] esta definido y se encuentra en el paso 2, satisfactoriamente carga el paso 3
     return render_template("load_3.html", apiName=apiName, api=apis[apiName], problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm(), possibleLabels=apis[apiName].getPossibleLabels(), features=apis[apiName].getFeatures(), modelParams=apis[apiName].getAlgorithmParams())
 
 
@@ -224,33 +222,30 @@ def post_load_3(apiName):
 
     global apis
 
-    # Si apis[apiName] no esta definido, se retorna al paso 0
+    # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
-    # Si apis[apiName] se encuentra en el paso 1, se retorna al paso 1
+    # If apis[apiName] is on step 1, it will redirect to step 1
     elif apis[apiName].step == 1:
         return redirect(url_for('get_load_1'))
 
-    # Si apis[apiName] se encuentra en el paso 2, se retorna al paso 2
+    # If apis[apiName] is on step 2, it will redirect to step 2
     elif apis[apiName].step == 2:
         return redirect(url_for('get_load_2'))
 
-    # Se obtienen los parámetros por defecto del algoritmo
+    # Algorithm default params
     algorithmParams = apis[apiName].getAlgorithmParams()
 
-    # Se obtienen los parámetros escogidos en el formulario
+    # User input algorithm params
     inputParams = request.form.getlist('modelParams')
 
-    # Para cada parámetro del algoritmo
+    # Sets the algorithm params for the API
     for i, key in enumerate(algorithmParams):
 
-        # Se obtiene el tipado del parámetro
         tipo = type(algorithmParams[key])
 
-        # Se sobreescribe el parámetro por defecto por el introducido por el usuario (values)
         if(inputParams[i] != "None"):
-            # Se realiza casting al parámetro introducido. Si no, todos serían del tipo str (String)
 
             if isinstance(algorithmParams[key], bool):
                 castedInputParam = inputParams[i] == "True"
@@ -259,60 +254,57 @@ def post_load_3(apiName):
 
             algorithmParams[key] = castedInputParam
 
-    # Carga los parámetros en la API
     apis[apiName].setAlgorithmParams(algorithmParams)
 
-    # Obtiene las columnas a no tener en cuenta y las carga en la API
+    # Gets and sets the dropping columns of the API
     dropColumns = request.form.getlist('dropColumns')
     apis[apiName].setDropColumns(dropColumns)
 
-    # Obtiene el tamaño de test y lo carga en la API
+    # Gets and sets the testSize of the API
     testSize = request.form['testSize']
     apis[apiName].setTestSize(testSize)
 
-    # Si se trata de un problema de clasificación binario, obtiene el valor de la variable objetivo positivo
-    # (para los True Positive, False Positive, True Negative y False Negative) y lo carga en la API
+    # If it is an Binary Classification problem, it gets the positive Label
+    # (in order to calculate False Negatives, True Negatives, False Positives, True Positives)
     if(apis[apiName].isBinaryClassification):
         positiveLabel = request.form['positiveLabel']
         apis[apiName].setPositiveLabel(positiveLabel)
 
     try:
-        # Entrena el modelo
+        # Trains the model
         apis[apiName].trainModel()
 
-        # Evalúa el modelo
+        # Evaluates the model
         apis[apiName].evaluateModel()
 
     except Exception as e:
         print(e)
         return render_template("load_3.html", apiName=apiName, api=apis[apiName], error=True, problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm(), possibleLabels=apis[apiName].getPossibleLabels(), features=apis[apiName].getFeatures(), modelParams=apis[apiName].getAlgorithmParams())
 
-    # Si se llega a esta parte del código, significa que el entrenamiento y evaluación de modelo fue completo
-
-    # Si el usuario marcó que desea recibir una notificación por correo electrónico y ha escrito su email,
-    # envía un email al usuario. (Librería Flask-Mail)
+    # If user checked the option of receiving an email, this code does the task
+    # It sends an email to user email. (Module Flask-Mail)
     if(request.form['sendMail'] == 'Si') and ('email' in request.form):
 
-        # Comprueba si el email no es un String vacio
+        # Check email is not an empty String
         if request.form['email'] != "":
 
-            # Email del usuario que recibira el correo
+            # User's email
             email = request.form['email']
 
-            # Parámetros del correo
+            # Mail parameters
             msg = Message('API generation complete',
                           sender='tfgadrianruizparra@gmail.com', recipients=[email])
             msg.body = "The API has been generated successfully and its currently operable."
 
-            # Envia el correo
+            # Send email
             mail.send(msg)
 
-    # El atributo ready de la API se marca a True.
+    # API generation is complete. Ready attribute is set to True.
     apis[apiName].ready = True
 
-    return redirect(url_for('apiHome',apiName=apiName))
+    return redirect(url_for('apiHome', apiName=apiName))
 
-# Ruta DESTROY.
+# DESTROY Route.
 
 
 @flask_app.route("/destroy/<apiName>/")
@@ -322,15 +314,16 @@ def destroy(apiName):
     return redirect(url_for('home'))
 
 
-# Ruta DATASET.
+# DATASET Route.
 @flask_app.route("/<apiName>/dataset")
 def dataset(apiName):
     global apis
 
-    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    # If the api is not defined or ready, redirects to generating a new API
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
+    # If user selects download option
     if "download" in request.args:
         if (request.args["download"] == "CSV"):
             print(os.path.join(flask_app.config['APP_FOLDER'],
@@ -342,20 +335,21 @@ def dataset(apiName):
     return render_template("dataset.html", apiName=apiName, api=apis[apiName], headers=apis[apiName].getColumns(), dataset=apis[apiName].getValues())
 
 
+# Generates a CSV file and returns its filename
 def download_CSV(apiName):
     global apis
     filename = apis[apiName].downloadCSV(os.path.join(flask_app.config['APP_FOLDER'],
                                                       flask_app.config['UPLOAD_FOLDER']))
     return filename
 
-# Ruta METRICS.
+# METRICS Route.
 
 
 @flask_app.route("/<apiName>/metrics")
 def metrics(apiName):
     global apis
 
-    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    # If the api is not defined or ready, redirects to generating a new API
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
@@ -365,26 +359,26 @@ def metrics(apiName):
     return render_template("metrics.html", apiName=apiName, api=apis[apiName], headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, test_label=inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
 
 
-# Ruta MODEL.
+# MODEL Route.
 @flask_app.route("/<apiName>/model")
 def model(apiName):
     global apis
 
-    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    # If the api is not defined or ready, redirects to generating a new API
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
     model = apis[apiName].getModelParams()
     return render_template("model.html", apiName=apiName, api=apis[apiName], headers=model.keys(), metrics=model.values())
 
-# Ruta PREDICT.
+# PREDICT Route.
 
 
 @flask_app.route("/<apiName>/predict", methods=["GET"])
 def predict(apiName):
     global apis
 
-    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    # If the api is not defined or ready, redirects to generating a new API
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
@@ -395,11 +389,11 @@ def predict(apiName):
 def predict_post(apiName):
     global apis
 
-    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    # If the api is not defined or ready, redirects to generating a new API
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
-    # Acciones a realizar si se sube el formulario JSON
+    # Code for JSON form
     if request.form['form'] == "JSON":
         jsonInput = request.form['jsonInput']
         try:
@@ -409,9 +403,9 @@ def predict_post(apiName):
             print(e)
             return render_template("predict.html", apiName=apiName, api=apis[apiName], error=True)
 
-    # Acciones a realizar si se sube el formulario CSV
+    # Code for CSV form
     else:
-        # Guarda el fichero introducido similar a la carga de ficheros csv en path load
+        # Saves the file
         csvInput = request.files['csvInput']
         if csvInput.filename != '':
             file_path = os.path.join(flask_app.config['APP_FOLDER'],
@@ -419,7 +413,7 @@ def predict_post(apiName):
             csvInput.save(file_path)
 
             try:
-                # Predice los valores
+                # Predict the values
                 resultPredictHeaders, resultPredictValues, typeResultHeaders, typeResultValues = apis[apiName].predictNewValues(
                     file_path, typeData="CSV", separator=request.form['separator'])
             except Exception as e:
@@ -434,15 +428,15 @@ def predict_post(apiName):
 def graphs(apiName):
     global apis
 
-    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    # If the api is not defined or ready, redirects to generating a new API
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
-    # Generate the figure **without using pyplot**.
+    # Generates the figures.
     figures = apis[apiName].graphs()
     data = []
     for fig in figures:
-        # Save it to a temporary buffer.
+        # Save every figure to a temporary buffer.
         buf = BytesIO()
         fig.savefig(buf, format="png")
         # Embed the result in the html output.
@@ -450,12 +444,12 @@ def graphs(apiName):
     return render_template("graphs.html", apiName=apiName, api=apis[apiName], data=data)
 
 
-# Ruta EXPORT.
+# EXPORT Route.
 @flask_app.route("/<apiName>/export")
 def export(apiName):
     global apis
 
-    # Si apis[apiName] (la api) no esta definido ni listo, se redirige a la carga de un nuevo dataset
+    # If the api is not defined or ready, redirects to generating a new API
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
@@ -469,8 +463,7 @@ def export(apiName):
                                   flask_app.config['UPLOAD_FOLDER'],  apiName + ".api"))
 
 
-# Ruta IMPORT.
-
+# IMPORT Route.
 
 @flask_app.route("/import", methods=["GET"])
 def get_import():
@@ -491,21 +484,21 @@ def post_import():
     if apiName == "api":
         return render_template("import.html", error="The name of the Api cannot be \"api\". Try other name.")
 
-    # Obtiene el fichero importado
+    # Gets the form import file
     uploaded_file = request.files['file']
 
-    # Comprueba que el fichero este subido correctamente
+    # Checks if the file is uploaded successfully
     if uploaded_file.filename != '':
 
-        # Selecciona el path para alojar el fichero subido
+        # Gets the filepath
         file_path = os.path.join(flask_app.config['APP_FOLDER'],
                                  flask_app.config['UPLOAD_FOLDER'],
                                  uploaded_file.filename)
 
-        # Guarda el fichero subido en el path seleccionado
+        # Saves the file in the filepath
         uploaded_file.save(file_path)
 
-    # Una vez subido el fichero, instancia un nuevo apis[apiName] usando como experimento el csv
+    # Once the file is saved, it creates an API instance importing the file
 
     try:
         apis[apiName] = pickle.load(open(file_path, "rb"))
@@ -515,7 +508,7 @@ def post_import():
         apis.pop(apiName, None)
         return render_template("import.html", error="An error has occurred reading the file.")
 
-    # Redirecciona al siguiente paso
+    # Redirects to API's home
     return redirect(url_for('apiHome', apiName=apiName))
 
 
@@ -523,7 +516,7 @@ def post_import():
 
     Endpoints de la API REST.
 
-    Todas estas rutas tienen el prefijo '/api/'
+    Every endpoint has the prefix '/api/'
 
 """
 
@@ -533,6 +526,28 @@ def defaultApiRoute():
     return jsonify({
         "status": "Api is working"
     })
+
+
+@flask_app.route("/api/<apiName>")
+def homeApi(apiName):
+    global apis
+
+    if apiName not in apis or not apis[apiName].ready:
+        return jsonify({"error": "API is not generated yet"})
+
+    return jsonify({
+        "apiName": apiName,
+        "mlProblem": apis[apiName].getProblem(), 
+        "modelAlgorithm": apis[apiName].getAlgorithm(),
+        "label": apis[apiName].getInputLabel(),
+        "endpoints": {
+            "home": {"methods": "GET", "endpoint": url_for('homeApi', apiName=apiName)},
+            "dataset": {"methods": "GET", "endpoint": url_for('datasetApi', apiName=apiName)},
+            "metrics": {"methods": "GET", "endpoint": url_for('metricsApi', apiName=apiName)},
+            "model": {"methods": "GET", "endpoint": url_for('modelApi', apiName=apiName)},
+            "predict": {"methods": "POST", "endpoint": url_for('predictApi', apiName=apiName)},
+        }})
+
 
 
 @flask_app.route("/api/<apiName>/dataset")
@@ -575,14 +590,16 @@ def predictApi(apiName):
     return jsonify(apis[apiName].predictNewValues(request.get_json(), toApi=True))
 
 
-@flask_app.route("/api/<apiName>/load", methods=["POST"])
-def loadApi(apiName):
+@flask_app.route("/api/load", methods=["POST"])
+def loadApi():
     global apis
 
     data = request.get_json()
 
-    # dataset, inputLabel y modelType son atributos que DEBEN incluir el cuerpo de la petición
+    # apiName, dataset, inputLabel y modelType MUST BE in petition's body
 
+    if "apiName" not in data:
+        return jsonify({"error": "There is no apiName in the POST body and it must be supplied"})
     if "dataset" not in data:
         return jsonify({"error": "There is no dataset in the POST body and it must be supplied"})
     if "inputLabel" not in data:
@@ -590,10 +607,19 @@ def loadApi(apiName):
     if "modelType" not in data:
         return jsonify({"error": "There is no modelType in the POST body and it must be supplied"})
 
-    # Obtiene el dataset
+    # Gets the API name
+    apiName = data["apiName"]
+
+    if apiName in apis:
+        return jsonify({"error": "There is already an API generated with that name. Try other name."})
+
+    if apiName == "api":
+        return jsonify({"error": "The name of the Api cannot be \"api\". Try other name."})
+
+    # Gets the dataset
     apis[apiName] = load_json(data["dataset"])
 
-    # Procesa los NaN y los nulos
+    # Process NaN and Null data
     if "nanNullMode" in data:
         if data["nanNullMode"] == "fill":
             if "fillvalue" in data:
@@ -606,13 +632,13 @@ def loadApi(apiName):
     else:
         apis[apiName].processNanNull("drop")
 
-    # Obtiene el inputLabel
+    # Gets the inputLabel
     apis[apiName].setInputLabel(data["inputLabel"])
 
-    # Obtiene el algoritmo para el modelo
+    # Gets the model algorithm
     modelType = data["modelType"]
 
-    # A partir del algoritmo escogido, se obtiene el tipo de problema ML (Clasificación, Regresión o Clustering)
+    # Gets the Machine Learning problem from the model algorithm (Classification, Regression or Clustering)
     classification = ["GNB", "SVC", "KNN", "DT", "RF"]
     regression = ["LR", "SVR", "SGDR", "KR", "GBR"]
     clustering = ["KM", "AP", "MS", "B"]
@@ -626,48 +652,75 @@ def loadApi(apiName):
     else:
         mltype = "Unknown"
 
-    # Carga el tipo de problema ML y el algoritmo en la API
+    # Sets the APIs model algorithm and ML problem
     apis[apiName].setAlgorithm(mltype, modelType)
 
-    # Carga los parámetros en la API si estan definidos en el cuerpo de la petición POST
+    # Loads the algoritm parameters if they are defined on the POST's body
     if "modelParams" in data:
-        # Se obtienen los parámetros escogidos en el formulario
         apis[apiName].setAlgorithmParams(data["modelParams"])
     else:
         apis[apiName].setAlgorithmParams({})
 
-    # Obtiene las columnas a no tener en cuenta y las carga en la API si estan definidos en el cuerpo de la petición POST
+    # Loads the dropping columns if they are defined on the POST's body
     if "dropColumns" in data:
         apis[apiName].setDropColumns(data["dropColumns"])
     else:
         apis[apiName].setDropColumns([])
 
-     # Obtiene el tamaño de test y lo carga en la API si estan definidos en el cuerpo de la petición POST
+     # Loads the test set size if they are defined on the POST's body. Defaults to 0.3
     if "testSize" in data:
         apis[apiName].setTestSize(data["testSize"])
     else:
         apis[apiName].setTestSize(0.3)
 
-    # Si se trata de un problema de clasificación binario, obtiene el valor de la variable objetivo positivo
-    # (para los True Positive, False Positive, True Negative y False Negative) y lo carga en la API
+    # If it is an Binary Classification problem, it gets the positive Label
+    # (in order to calculate False Negatives, True Negatives, False Positives, True Positives)
     if apis[apiName].isBinaryClassification:
         if "positiveLabel" in data:
             apis[apiName].setPositiveLabel(data["positiveLabel"])
         else:
             return jsonify({"error": "positiveLabel must be suplied to Binary Classification problems"})
 
+    # Trains the model
     apis[apiName].trainModel()
+
+    # Evaluates the model
     apis[apiName].evaluateModel()
 
+    # If user did input his email, this code
+    # sends an email. (Module Flask-Mail)
     if "email" in data:
-        # Parámetros del correo
+        # Email parameters
         msg = Message(
             'API generation complete', sender='tfgadrianruizparra@gmail.com', recipients=[data["email"]])
         msg.body = "The API has been generated successfully and its currently operable."
-        # Envia el correo
+        # Send email
         mail.send(msg)
 
-    # El atributo ready de la API se marca a True.
+    # API generation is complete. Ready attribute is set to True.
     apis[apiName].ready = True
 
-    return jsonify({"success": "The API has been successfully generated and its now operable."})
+    return jsonify({
+        "success": "The API has been successfully generated and its now operable.",
+        "endpoints": {
+            "home": {"methods": "GET", "endpoint": url_for('homeApi', apiName=apiName)},
+            "dataset": {"methods": "GET", "endpoint": url_for('datasetApi', apiName=apiName)},
+            "metrics": {"methods": "GET", "endpoint": url_for('metricsApi', apiName=apiName)},
+            "model": {"methods": "GET", "endpoint": url_for('modelApi', apiName=apiName)},
+            "predict": {"methods": "POST", "endpoint": url_for('predictApi', apiName=apiName)},
+        }})
+
+
+"""
+
+    Error handlers
+
+"""
+
+# Error 404
+
+
+@flask_app.errorhandler(404)
+def page_not_found(e):
+    print(e)
+    return render_template('error.html'), 404

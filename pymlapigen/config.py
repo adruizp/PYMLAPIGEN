@@ -4,10 +4,13 @@
 
 """
 
-# Directorio de ficheros subidos (datasets)
+# Sorting json keys
+JSON_SORT_KEYS = False
+
+# Uploaded files folder
 UPLOAD_FOLDER = 'static/files'
 
-# Configuracion mails (Librería Flask-Mail)
+# Mail config (Module Flask-Mail)
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 465
 MAIL_USERNAME = 'tfgadrianruizparra@gmail.com'
