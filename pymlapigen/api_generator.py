@@ -31,91 +31,99 @@ from sklearn.cluster import Birch
 
 import scikitplot as skplt
 
+
 def load_csv(csvFile, separator=','):
-    """Inicializa un objeto API_Generator a partir de un fichero CSV.
+    """Instances an API_Generator object from a CSV file.
 
     Args:
-        csvFile (str): Path del fichero csv.
-        separator (str, optional): Separador de valores del fichero csv. Por defecto a ','.
+        csvFile (str): CSV file's path
+        separator (str, optional): Values separator in the CSV fil. Defaults to ','.
 
     Returns:
-        API_Generator: Generador de la API.
+        API_Generator: API Generator.
     """
     datasetDF = pd.read_csv(csvFile, sep=separator)
     return API_Generator(datasetDF)
 
+
 def load_json(inputJson):
-    """Inicializa un objeto API_Generator a partir de un objeto dict JSON.
+    """Instances an API_Generator object from a JSON dict.
 
     Args:
-        inputJson (dict): Objeto JSON de tipo dict.
+        inputJson (dict): JSON dict.
 
     Returns:
-        API_Generator: Generador de la API.
+        API_Generator: API Generator.
     """
     datasetDF = pd.DataFrame(inputJson)
     return API_Generator(datasetDF)
-    
 
 
 class API_Generator:
     def __init__(self, dataset):
-        """Constructor de API_Generator
+        """API_Generator's constructor
 
         Args:
-            dataset (Pandas Dataframe): Dataset del experimento del cual se desea generar la API
+            dataset (Pandas Dataframe): Dataset of the experiment.
         """
         self.datasetDF = dataset
         self.step = 1
         self.ready = False
 
     def processNanNull(self, mode="drop", fillValue=-1):
-        """Procesa las filas que contengan valores nulos o valores nan. Tiene dos modos:
-        Modo drop: se deshace de las filas
-        Modo fill: rellena con fillValue los valores nulos
+        """Processes the missing values from the dataset. There are three modes:
+        Drop mode: deletes rows with missing values.
+        Fill mode: fills missing values with a value.
+        Mean mode: fills missing values with the mean of the column.
 
         Args:
-            mode (str, optional): Modo de proceso de las filas. Por defecto a "drop".
-            fillValue (int, optional): Si el modo es "fill", es el valor con el que rellena los nulos/nan. Por defecto a -1.
+            mode (str, optional): Processing missing values mode. Defaults to "drop".
+            fillValue (int, optional): If "fill" mode, represents the filling value. Defaults to -1.
         """
         self.nanNullMode = mode
-        if mode=="drop":
+        if mode == "drop":
             self.datasetDF = self.datasetDF.dropna().reset_index(drop=True)
-        elif mode=="fill":
+        elif mode == "fill":
             self.fillValue = fillValue
-            self.datasetDF = self.datasetDF.fillna(int(fillValue)).reset_index(drop=True)
+            self.datasetDF = self.datasetDF.fillna(
+                int(fillValue)).reset_index(drop=True)
             self.__cleanStringColumns()
-        elif mode=="mean":
+        elif mode == "mean":
             self.__replaceMean(self.datasetDF)
 
     def __cleanStringColumns(self):
-        """Método privado. Este método limpia las columnas que tras haber rellenado los valores nulos queden
-        con tipos mezclados (por ejemplo, columnas con str,int). Si no se limpian, al aplicar One Hot Encoding
-        saltará una excepción
+        """Private method. This method cleans the columns after missing values are filled in case they are mixed types
+        (for example, columns with str,int values). If not cleaned, an exception will occur in One Hot Encoding.
         """
-        stringColumns = self.datasetDF.select_dtypes(include=[object, 'category'])
+        stringColumns = self.datasetDF.select_dtypes(
+            include=[object, 'category'])
         self.datasetDF[stringColumns.columns] = stringColumns.astype(str)
 
     def __replaceMean(self, dataset):
+        """Private method. This method fills the missing values with the column mean (numeric values) or
+        the most common word (string values)
+        Args:
+            dataset (Pandas Dataframe): Dataset to fill.
+        """
         for column in dataset:
-            if len(dataset[column].dropna())==0:
+            if len(dataset[column].dropna()) == 0:
                 # If the column has no values (all null), it will be dropped.
                 dataset.drop(column, axis=1)
             else:
                 if dataset[column].dtype in ['object', 'category']:
                     # Most common value
-                    dataset[column] = dataset[column].fillna(dataset[column].mode()[0])
+                    dataset[column] = dataset[column].fillna(
+                        dataset[column].mode()[0])
                 else:
                     # Mean value
-                    dataset[column] = dataset[column].fillna(dataset[column].mean())
-                    
-
+                    dataset[column] = dataset[column].fillna(
+                        dataset[column].mean())
 
     def setInputLabel(self, inputLabel):
-        """Introduce la variable objetivo del experimento.
+        """Inputs the label of the experiment.
 
         Args:
-            inputLabel (str): nombre de la columna que contiene la variable objetivo
+            inputLabel (str): Name of the label column
         """
         self.inputLabel = inputLabel
 
@@ -123,29 +131,29 @@ class API_Generator:
             self.__dropMissingInputLabelRows()
 
     def __dropMissingInputLabelRows(self):
-        """Método privado. Este método se deshace de las filas
-        cuyo variable objetivo es nulo ya que no aportan información.
-        
-        Este método se lanzará normalmente cuando el modo Nan Null no sea drop.
+        """Private method. This method gets rid of the rows
+        whose input label is null.
         """
         typeInputLabel = self.datasetDF[self.inputLabel].dtype
         if typeInputLabel in ['object', 'category']:
             castedFillValue = str(self.fillValue)
         else:
             castedFillValue = np.cast[typeInputLabel](self.fillValue)
-        self.datasetDF = self.datasetDF[self.datasetDF[self.inputLabel] != castedFillValue].reset_index(drop=True)
+        self.datasetDF = self.datasetDF[self.datasetDF[self.inputLabel]
+                                        != castedFillValue].reset_index(drop=True)
 
     def setAlgorithm(self, mltype, modelType):
-        """Introduce el tipo de problema ML y el algoritmo del modelo para el experimento
+        """Sets the Machine Learning problem and the model's algorithm
 
         Args:
-            mltype ( str ): Tipo del problema ML.
-            modelType ( str ): Algoritmo para el modelo.
+            mltype ( str ): Machine Learning Problem.
+            modelType ( str ): Model's Algorithm.
 
         """
         self.mltype = mltype
         self.modelType = modelType
-        self.isBinaryClassification = (mltype == "Classification") and (len(self.getPossibleLabels()) == 2)
+        self.isBinaryClassification = (mltype == "Classification") and (
+            len(self.getPossibleLabels()) == 2)
 
         if self.mltype == "Classification":
             if self.modelType == "GNB":
@@ -160,7 +168,7 @@ class API_Generator:
                 self.model = RandomForestClassifier()
             else:
                 raise Exception(
-                    self.modelType + " no corresponde con ningun algoritmo de clasificacion.")
+                    self.modelType + " is not related with any classification algorithm.")
 
         elif self.mltype == "Regression":
             if self.modelType == "LR":
@@ -175,7 +183,7 @@ class API_Generator:
                 self.model = GradientBoostingRegressor()
             else:
                 raise Exception(
-                    self.modelType + " no corresponde con ningun algoritmo de regresion.")
+                    self.modelType + " is not related with any regresion algorithm.")
 
         elif self.mltype == "Clustering":
             if self.modelType == "KM":
@@ -188,33 +196,34 @@ class API_Generator:
                 self.model = Birch()
             else:
                 raise Exception(
-                    self.modelType + " no corresponde con ningun algoritmo de clustering.")
+                    self.modelType + " is not related with any clustering algorithm.")
         else:
-            raise Exception("No se reconoce el problema " + self.mltype + ".")
+            raise Exception(
+                "Unknown Machine Learning problem " + self.mltype + ".")
 
     def getAlgorithmParams(self):
-        """Retorna los parámetros del algoritmo del modelo
+        """Gets the model algorithm parameters
 
         Returns:
-            dict: Parámetros del algoritmo del modelo
+            dict: Algorithm parameters
         """
         return self.model.get_params()
 
     def setAlgorithmParams(self, algorithmParams):
-        """Introduce nuevos parámetros para el algoritmo del modelo
+        """Sets the model algorithm parameters
 
         Args:
-            algorithmParams (dict): Nuevos parámetros del algoritmo
+            algorithmParams (dict): Algorithm parameters
         """
         self.algorithmParams = algorithmParams
         self.model.set_params(**algorithmParams)
 
     def setDropColumns(self,  dropColumns=[]):
-        """Introduce las columnas a no tener en cuenta del experimento.
-        Ademas, las columnas restantes serán asignadas como atributos (features)
+        """Sets the dropping columns (columns that will be deleted from the dataset)
+        The rest of columns are designed as features.
 
         Args:
-            dropColumns (list, optional): Lista de columnas a no tener en cuenta. Por defecto a [].
+            dropColumns (list, optional): Dropping columns list. Defaults to [].
         """
         self.dropColumns = dropColumns
         self.datasetDF = self.datasetDF.drop(dropColumns, axis=1)
@@ -222,10 +231,10 @@ class API_Generator:
         self.features = self.datasetDF.drop(self.inputLabel, axis=1).columns
 
     def setTestSize(self, testSize=0.3):
-        """Introduce el tamaño del test del experimento
+        """Sets the test set size percentage
 
         Args:
-            testSize (float, optional): Tamaño del test. Por defecto a 0.3.
+            testSize (float, optional): Set test size percentage. Defaults to 0.3.
         """
         self.testSize = float(testSize)
 
@@ -234,13 +243,13 @@ class API_Generator:
            Gracias a este valor positivo, se podrán realizar los cálculos de TP,FP,TN,FN
 
         Args:
-            positiveLabel (any, optional): Valor de la variable objetivo positivo. Por defecto a 1.
+            positiveLabel (any, optional): Valor de la variable objetivo positivo. Defaults to 1.
         """
         typeLabel = type(self.getPossibleLabels()[0])
         self.positiveLabel = typeLabel(positiveLabel)
 
     def trainModel(self):
-        """ Entrena el modelo con los parámetros de la instancia del objeto.
+        """ Trains the API's model.
         """
 
         self.enc = OneHotEncoder(handle_unknown='ignore')
@@ -254,14 +263,15 @@ class API_Generator:
         self.model.fit(self.x_train, self.y_train)
 
     def evaluateModel(self):
-        """Evalúa el modelo con los parámetros de la instancia del objeto generando así las métricas.
+        """ Evaluates the API's model generating metrics.
         """
 
         self.predictions = self.model.predict(self.x_test)
         self.metrics = {}
 
         if self.mltype == "Classification":
-            self.metrics["accuracy"] = accuracy_score(self.y_test, self.predictions)
+            self.metrics["accuracy"] = accuracy_score(
+                self.y_test, self.predictions)
             if self.isBinaryClassification:  # Binary Classification
                 self.metrics["precision"] = precision_score(
                     self.y_test, self.predictions, pos_label=self.positiveLabel)
@@ -280,8 +290,10 @@ class API_Generator:
                 self.y_test, self.predictions).tolist()
 
         elif self.mltype == "Regression":
-            self.metrics["MAE"] = mean_absolute_error(self.y_test, self.predictions)
-            self.metrics["MSE"] = mean_squared_error(self.y_test, self.predictions)
+            self.metrics["MAE"] = mean_absolute_error(
+                self.y_test, self.predictions)
+            self.metrics["MSE"] = mean_squared_error(
+                self.y_test, self.predictions)
             self.metrics["RMSE"] = np.sqrt(
                 mean_squared_error(self.y_test, self.predictions))
             self.metrics["RMSLE"] = np.log(
@@ -295,20 +307,26 @@ class API_Generator:
                 self.x_train, self.model.labels_)
             self.metrics["davies_bouldin"] = davies_bouldin_score(
                 self.x_train, self.model.labels_)
-            self.metrics["rand_score"] = rand_score(self.y_test, self.predictions)
+            self.metrics["rand_score"] = rand_score(
+                self.y_test, self.predictions)
             self.metrics["v-measure"] = v_measure_score(
                 self.y_test, self.predictions)
 
     def getAlgorithm(self):
+        """Returns the model's algorithm full name
+
+        Returns:
+            str: Model's algorithm name
+        """
         algorithms = {
             "GNB": "GaussianNB",
-            "SVC": "SVC",
+            "SVC": "Support Vector Classifier",
             "KNN": "KNeighborsClassifier",
             "DT": "DecisionTreeClassifier",
             "RF": "RandomForestClassifier",
 
             "LR": "LinearRegression",
-            "SVR": "SVR",
+            "SVR": "Support Vector Regression",
             "SGDR": "SGDRegressor",
             "KR": "KernelRidge",
             "GBR": "GradientBoostingRegressor",
@@ -321,14 +339,12 @@ class API_Generator:
 
         return algorithms[self.modelType]
 
-
     def getModelParams(self):
-        """Devuelve los parámetros del modelo del experimento
+        """Returns the API's model parameters
 
         Returns:
-            dict: Parámetros del modelo del experimento
+            dict: API's model parameters
         """
-
 
         modelParams = {}
         modelParams["label"] = self.inputLabel
@@ -363,52 +379,55 @@ class API_Generator:
         modelParams["algorithm"] = self.getAlgorithm()
         modelParams["algorithm_args"] = self.algorithmParams
 
-
         modelParams["dataset_size"] = self.datasetDF.shape[0]
         modelParams["training_size"] = self.x_train.shape[0]
         modelParams["testing_size"] = self.x_test.shape[0]
         return modelParams
 
-
     def getColumns(self):
-        """Devuelve las columnas del dataset del experimento
+        """Return the dataset columns name
 
         Returns:
-            list: Columnas del dataset
+            list: Dataset columns name
         """
         return self.datasetDF.columns
 
     def getFeatures(self):
-        """Devuelve las columnas (excepto la variable objetivo) del dataset del experimento
+        """Returns the dataset feature columns
         Returns:
-            list: Columnas no objetivo del dataset
+            list: Dataset feature columns
         """
         return self.datasetDF.drop(self.inputLabel, axis=1)
 
     def getInputLabel(self):
+        """Returns the input label name
+
+        Returns:
+            str: Input label name
+        """
         return self.inputLabel
 
     def getPossibleLabels(self):
-        """Devuelve los posibles valores de la variable objetivo. Utilizado para experimentos de Clasificación.
+        """Returns the unique values of the label column. Used in Classification problems.
 
         Returns:
-            numpy.ndarray: Posibles valores de la variable objetivo.
+            numpy.ndarray: Unique values of the label column.
         """
         return self.datasetDF[self.inputLabel].unique()
 
     def getValues(self):
-        """Devuelve los valores de las filas del dataset del experimento
+        """Returns the rows of the dataset
 
         Returns:
-            numpy.ndarray: Valores de las filas del dataset
+            numpy.ndarray: Dataset value rows
         """
         return self.datasetDF.values
 
     def getProblem(self):
-        """Devuelve el problema ML del experimento
+        """Returns the Machine Learning problem of the API
 
         Returns:
-            str: Problema ML
+            str: Machine Learning Problem
         """
         if self.mltype == "Classification":
             if self.isBinaryClassification:
@@ -419,24 +438,31 @@ class API_Generator:
             return self.mltype
 
     def getPredictions(self):
+        """Returns the API's test set, the label values and predicted values
 
-        noOHE = self.datasetDF.iloc[self.x_test.index].drop(self.inputLabel, axis=1)
+        Returns:
+            noOhe (Pandas Dataframe): Test set feature values.
+            y_test (Pandas Series): Test set label values.
+            predictions (List): Test set label predicted values.
+        """
+        noOHE = self.datasetDF.iloc[self.x_test.index].drop(
+            self.inputLabel, axis=1)
 
         return noOHE, self.y_test, self.predictions
 
-    def predictNewValues(self, inputData, typeData="JSON", separator=",", toApi = False):
-        """Predice nuevos valores utilizando el modelo del experimento
+    def predictNewValues(self, inputData, typeData="JSON", separator=",", toApi=False):
+        """Predicts new data using the trained model
 
         Args:
-            inputData (str, dict): Si typeData == "JSON", contiene un str o un dict con los valores del JSON. Si typeData =="CSV", contiene el path del fichero CSV
-            typeData (str, optional): Tipo de entrada del parámetro inputData. Por defecto a "JSON".
-            separator (str, optional): Si typeData == "CSV", indica el separador entre valores del fichero CSV. Por defecto a ",".
-            toApi (bool, optional): Indica si la predicción proviene del endpoint de la API Rest. Por defecto a False.
+            inputData (str, dict): If typeData == "JSON", it consists of an str or dict with JSON values. If typeData =="CSV", it contains the CSV file path
+            typeData (str, optional): Input data type. Defaults to "JSON".
+            separator (str, optional): If typeData == "CSV", it represents the CSV file data separator. Defaults to ",".
+            toApi (bool, optional): Tells whether the predicción comes from the API JSON endpoint or not. Defaults to False.
 
         Returns:
-            list: Lista de valores predichos
-            Pandas Dataframe: Dataframe de entrada con la columna result indicando los valores predichos
-            Pandas Dataframe: Dataframe auxiliar que indica que columnas fueron usadas y descartadas, si está la columna objetivo y las filas que contienen nulos
+            list: List of predicted values
+            Pandas Dataframe: Input Dataframe with a result column appended
+            Pandas Dataframe: Auxiliar Dataframe that points the type of the result cells
         """
 
         if typeData == "JSON":
@@ -447,24 +473,24 @@ class API_Generator:
         elif typeData == "CSV":
             inputDf = pd.read_csv(inputData, sep=separator)
 
-       
         predictInputDf = inputDf.drop(self.inputLabel, axis=1, errors='ignore')
-        predictInputDf = predictInputDf.drop(self.dropColumns, axis=1, errors='ignore')
+        predictInputDf = predictInputDf.drop(
+            self.dropColumns, axis=1, errors='ignore')
 
-         # Ordena las columnas para que coincidan con el entrenamiento
+        # Orders the columns so it matches the train one
         predictInputDf = predictInputDf.reindex(self.features, axis=1)
 
-        cleanPredictInputDf, nullRows = self.__clean_nan_null_input_dataframe(predictInputDf)
+        cleanPredictInputDf, nullRows = self.__clean_nan_null_input_dataframe(
+            predictInputDf)
 
         result = self.__predict_input_dataframe(cleanPredictInputDf).tolist()
 
-        # Para la API, se devuelve la lista de valores predichos
+        #  Returns the result if the petition was from the API JSON endpoint
         if toApi:
             return result
 
-        # Para la app web, se devuelve el dataframe con una nueva columna de valores predichos.
+        # Returns the input dataframe with a result column appended
 
-        
         if self.nanNullMode == "drop" and any(nullRows):
             type(nullRows[0])
             resultIndex = 0
@@ -473,42 +499,42 @@ class API_Generator:
                     inputDf.at[i, "result"] = "DROPPED"
                 else:
                     inputDf.at[i, "result"] = result[resultIndex]
-                    resultIndex+=1
-        
+                    resultIndex += 1
+
         else:
             inputDf["result"] = result
 
         typeDataframe = inputDf.copy()
-
 
         typeDataframe[self.features] = "Feature"
 
         for column in self.dropColumns:
             if column in typeDataframe.columns:
                 typeDataframe[column] = "NotUsed"
-                typeDataframe = typeDataframe.rename(columns = {column: "NotUsed"})
+                typeDataframe = typeDataframe.rename(
+                    columns={column: "NotUsed"})
 
         if self.inputLabel in typeDataframe.columns:
             typeDataframe[self.inputLabel] = "Label"
-            typeDataframe = typeDataframe.rename(columns = {self.inputLabel: "Label"})
-        
+            typeDataframe = typeDataframe.rename(
+                columns={self.inputLabel: "Label"})
+
         typeDataframe[inputDf[self.features].isna().any(axis=1)] = "NullRow"
 
         return inputDf.columns, inputDf.values, typeDataframe.columns, typeDataframe.values
 
     def filterDataset(self, args):
-        """Retorna el dataset como JSON del experimento aplicando los filtros pasados por parámetros
+        """Returns the dataset as JSON filtered with args
 
         Args:
-            args (dict): Parámetros a filtrar
+            args (dict): Filter params
 
         Returns:
-            (dict): JSON con el dataset del experimento filtrado
+            (dict): JSON filtered dataset
         """
-        # Cargar en returnDf una copia del dataset completo
         returnDf = self.datasetDF.copy()
 
-        # Filtrar returnDf con los parametros de la query
+        # Filters
         for key, value in args.items():
             try:
                 valor = float(value)
@@ -522,123 +548,123 @@ class API_Generator:
 
         return json.loads(returnDf.to_json(orient="records"))
 
-
     def downloadCSV(self, path):
-        """Exporta el dataset a CSV retornando el nombre del fichero
+        """Exports the dataset into a CSV file
 
         Args:
-            path (str): Path del nuevo fichero CSV que se desea exportar
+            path (str): Path of the file to export 
 
         Returns:
-            str: Nombre del fichero exportado
+            str: Exported file name
         """
         filename = self.inputLabel + '_' + self.mltype + '_' + self.modelType + '.csv'
-        filepath = os.path.join(path,filename)
-        self.datasetDF.to_csv(filepath, index = False)
+        filepath = os.path.join(path, filename)
+        self.datasetDF.to_csv(filepath, index=False)
         return filename
 
     def graphs(self):
-        """Genera gráficos del experimento en función de los parámetros
-        y los retorna como figuras gráficas (plots).
+        """Generates plots of the experiment and returns it as 
+        figures
 
         Returns:
-            list[Matplotlib Pyplot Figure]: Lista de figuras que contienen los gráficos a renderizar
+            list[Matplotlib Pyplot Figure]: Figures plot list
         """
         returnGraphs = []
-        if self.mltype == "Classification":         
-            returnGraphs.append(skplt.metrics.plot_confusion_matrix(self.y_test, self.predictions).get_figure())
+        if self.mltype == "Classification":
+            returnGraphs.append(skplt.metrics.plot_confusion_matrix(
+                self.y_test, self.predictions).get_figure())
             if not hasattr(self.model, 'probability') or self.model.probability:
-                returnGraphs.append(skplt.metrics.plot_roc(self.y_test, self.model.predict_proba(self.x_test)).get_figure())
+                returnGraphs.append(skplt.metrics.plot_roc(
+                    self.y_test, self.model.predict_proba(self.x_test)).get_figure())
         elif self.mltype == "Clustering":
             cluster_labels = self.model.predict(self.x)
-            returnGraphs.append(skplt.metrics.plot_silhouette(self.x, cluster_labels).get_figure())
+            returnGraphs.append(skplt.metrics.plot_silhouette(
+                self.x, cluster_labels).get_figure())
             if hasattr(self.model, 'n_clusters') and hasattr(self.model, 'score'):
-                returnGraphs.append(skplt.cluster.plot_elbow_curve(self.model,self.x,cluster_ranges=range(1, 10)).get_figure())
+                returnGraphs.append(skplt.cluster.plot_elbow_curve(
+                    self.model, self.x, cluster_ranges=range(1, 10)).get_figure())
 
         if self.mltype == "Classification" or self.mltype == "Regression":
-            returnGraphs.append(skplt.estimators.plot_learning_curve(self.model, self.x, self.y).get_figure())
-
+            returnGraphs.append(skplt.estimators.plot_learning_curve(
+                self.model, self.x, self.y).get_figure())
 
         return returnGraphs
 
     def __dataframe_from_input_json(self, inputJson):
-        """Método privado que construye un DataFrame a partir de un JSON
+        """Private method that builds a Dataframe from a JSON dict list
 
         Args:
-            inputJson (dict, list[dict]): Objeto JSON
+            inputJson (dict, list[dict]): JSON object
 
         Returns:
-            Pandas Dataframe: Dataframe construido a partir del objeto JSON
+            Pandas Dataframe: Built Dataframe
         """
-        # Si en lugar de una lista de objetos JSON se pasa un unico JSON (dict), es necesario
-        # transformarlo a una lista de JSON
+        # If input is a single dict, cast it into a list of dicts
         if isinstance(inputJson, dict):
             inputJson = [inputJson]
 
-        # DataFrame de los nuevos datos
+        # Build Dataframe
         df = pd.DataFrame(inputJson)
 
         return df
 
     def __clean_nan_null_input_dataframe(self, inputDf):
-        """Metodo privado. Este método se encarga de procesar los
-        datos nan y nulos recibidos para predecir nuevos valores.
+        """Metodo privado. Cleans the missing value in order to make predictions.
 
         Args:
-            inputDf (Pandas Dataframe): Datos de entrada para ser procesados y limpiados.
+            inputDf (Pandas Dataframe): Input data to be cleaned.
 
         Returns:
-            Pandas Dataframe: Datos de entradas limpios y procesados.
-            List[boolean]: Si el modo de trato de nan/nulos es "drop", representa las filas que han sido deshechadas (y por tanto,
-            no cuentan con ninguna predicción).
+            Pandas Dataframe: Cleaned input data.
+            List[boolean]: If nan/null mode is "drop", represents the dropped rows 
         """
-        
+
         nullRowsDf = inputDf.isnull().any(axis=1)
 
         nullRows = nullRowsDf.tolist()
 
         if self.nanNullMode == "drop":
             inputDf = inputDf.dropna().reset_index(drop=True)
-        elif self.nanNullMode=="fill":
-            inputDf = inputDf.fillna(int(self.fillValue)).reset_index(drop=True)
+        elif self.nanNullMode == "fill":
+            inputDf = inputDf.fillna(
+                int(self.fillValue)).reset_index(drop=True)
             stringColumns = inputDf.select_dtypes(include=[object, 'category'])
             inputDf[stringColumns.columns] = stringColumns.astype(str)
-        elif self.nanNullMode=="mean":
+        elif self.nanNullMode == "mean":
             self.__replaceMean(inputDf)
 
         return inputDf, nullRows
 
     def __predict_input_dataframe(self, inputDf):
-        """Método privado que predice nuevos valores a partir de un Dataframe de entrada
+        """Private method. Predicts new data from an input Dataframe
 
         Args:
-            inputDf (Dataframe Pandas): Dataframe de entrada con las filas para predecir
+            inputDf (Dataframe Pandas): Input data Dataframe 
 
         Returns:
-            list: Valores predichos a partir de las filas del Dataframe de entrada
+            list: Predicted values list
         """
 
         predictDF = self.__ohe_encode(inputDf)
 
-        # Se realiza la predicción utilizando el modelo entrenado
+        # Predicts using the trained model
         resultado = self.model.predict(predictDF)
 
         return resultado
 
     def __ohe_encode(self, x, isTraining=False):
-        """Método privado que entrena o transforma las filas categóricas del dataset del experimento o del dataframe a predecir. Utiliza One-Hot-Encoding
-
+        """Private method. Transforms the non numeric data into numeric using One Hot Encoding.
         Args:
-            x (Pandas Dataframe): Dataset del experimento o Dataframe a predecir.
-            isTraining (bool, optional): Indica si el método se ejecuta en fase de entrenamiento o durante una predicción. Por defecto a False.
+            x (Pandas Dataframe): Input features Dataframe
+            isTraining (bool, optional): Tells if the transformation belongs to a training or prediction. Defaults to False.
 
         Returns:
-            Pandas Dataframe: Dataframe pasado por parámetro de entrada al cual se le ha aplicado One Hot Encoding.
+            Pandas Dataframe: Dataframe with One-Hot-Encoding applied.
         """
-        # Obtiene las columnas discretas/categóricas
+        # Gets the discrete/categorical columns
         categoricalFeatures = x.select_dtypes(include=[object, 'category'])
 
-        # Obtiene un Dataframe con One-Hot-Encoding aplicado
+        # Applies One-Hot-Encoding and save it into a new Dataframe
 
         if isTraining:
             oneHotDF = pd.DataFrame(self.enc.fit_transform(categoricalFeatures).toarray(
@@ -648,5 +674,5 @@ class API_Generator:
             oneHotDF = pd.DataFrame(self.enc.transform(categoricalFeatures).toarray(
             ), columns=self.enc.get_feature_names(categoricalFeatures.columns))
 
-        # Se deshace de las columnas originales y se unen las columnas aplicadas con One-Hot-Encoding.
+        # Gets rid of the old categorical columns and appends the new columns with One-Hot-Encoding applied.
         return x.drop(categoricalFeatures, axis=1).join(oneHotDF)
