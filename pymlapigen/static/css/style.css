@@ -166,3 +166,15 @@ footer {
     background-color: #afbd8e !important;
 }
 
+
+.showable{
+    cursor: pointer;
+}
+
+.showable-disabled:after{
+    content: "\25b4"
+}
+
+.showable-enabled:after{
+    content: "\25be"
+}

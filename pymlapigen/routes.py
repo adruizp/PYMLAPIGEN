@@ -214,7 +214,7 @@ def get_load_3(apiName):
     elif apis[apiName].step == 2:
         return redirect(url_for('get_load_2'))
 
-    return render_template("load_3.html", apiName=apiName, api=apis[apiName], problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm(), possibleLabels=apis[apiName].getPossibleLabels(), features=apis[apiName].getFeatures(), modelParams=apis[apiName].getAlgorithmParams())
+    return render_template("load_3.html", apiName=apiName, api=apis[apiName], problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm(), label=apis[apiName].getInputLabel(), possibleLabels=apis[apiName].getPossibleLabels(), features=apis[apiName].getFeatures(), modelParams=apis[apiName].getAlgorithmParams())
 
 
 @flask_app.route("/<apiName>/load/3", methods=["POST"])
@@ -356,7 +356,7 @@ def metrics(apiName):
     inputLabel = apis[apiName].getInputLabel()
     x_test, y_test, predictions = apis[apiName].getPredictions()
 
-    return render_template("metrics.html", apiName=apiName, api=apis[apiName], headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, test_label=inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
+    return render_template("metrics.html", apiName=apiName, api=apis[apiName], problem=apis[apiName].getProblem(), headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, test_label=inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
 
 
 # MODEL Route.

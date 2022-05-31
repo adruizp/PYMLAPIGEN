@@ -23,7 +23,28 @@
         <tbody>
             <tr>
                 {% for metric in metrics %}
-                <td> {{ metric }}</td>
+
+                {% if metric is mapping %}
+                <td>
+                    <ul>
+                        {% for key in metric %}
+                        <li><strong>{{key}}</strong>: {{metric[key]}}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                {% elif metric is iterable and metric is not string %}
+                <td>
+                    {% if metric|length %}
+                    <ul>
+                        {% for item in metric %}<li>{{ item }}</li>{% endfor %}
+                    </ul>
+                    {% else %}
+                    <i>None</i>
+                    {% endif %}
+                </td>
+                {% else %}
+                <td>{{metric}}</td>
+                {% endif%}
                 {% endfor %}
             </tr>
         </tbody>
