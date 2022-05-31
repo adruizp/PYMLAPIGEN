@@ -63,16 +63,16 @@
                                 <hr class="dropdown-divider">
                             </li>
                             {% if api.step > 0 %}
-                            <li><a class="dropdown-item" href="{{url_for('get_load_1',apiName=apiName)}}">Null
-                                    settings</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('get_load_1',apiName=apiName)}}">{% if api.ready %}Modify{%endif%} Null
+                                    Settings</a></li>
                             {% endif %}
                             {% if api.step > 1 %}
-                            <li><a class="dropdown-item" href="{{url_for('get_load_2',apiName=apiName)}}">ML
-                                    settings</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('get_load_2',apiName=apiName)}}">{% if api.ready %}Modify{%endif%} ML
+                                    Settings</a></li>
                             {% endif %}
                             {% if api.step > 2 %}
-                            <li><a class="dropdown-item" href="{{url_for('get_load_3',apiName=apiName)}}">ML
-                                    parameters</a>
+                            <li><a class="dropdown-item" href="{{url_for('get_load_3',apiName=apiName)}}">{% if api.ready %}Modify{%endif%} ML
+                                    Parameters</a>
                             </li>
                             {% endif %}
 
@@ -81,7 +81,7 @@
                                 <hr class="dropdown-divider">
                             </li>
 
-                            <li><a class="dropdown-item" href="{{url_for('destroy',apiName=apiName)}}">Destroy</a>
+                            <li><a class="dropdown-item" href="{{url_for('destroy',apiName=apiName)}}">Destroy API</a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">

@@ -1,5 +1,14 @@
 {% extends 'base.html' %} {% block title %} Null settings {% endblock %} {% block content %}
-<h1> Null settings </h1>
+
+
+{% if api.ready %}
+<div class="alert alert-warning alert-dismissible fade show col-5" role="alert">
+    Warning! If you do a modification, you will have to generate the API again!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<h1>{% if api.ready %}Modify {% endif%}Null settings </h1>
 <div class="mx-2">
     <form method="POST" action="" enctype="multipart/form-data">
         <label class="mt-1"> What to do with <strong>null</strong> or <strong>nan</strong> values: </label>
@@ -34,7 +43,7 @@
 
         <div class="mt-3">
             <a href="{{ url_for('get_load_0') }}" class="btn btn-back">Back</a>
-            <input type="submit" value="Next" class="btn ms-1">
+            <input type="submit" value="{% if api.ready %}Modify{% else %}Next{% endif %}" class="btn ms-1 {% if api.ready %}btn-modify{%endif%}">
         </div>
     </form>
 </div>

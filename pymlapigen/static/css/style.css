@@ -8,6 +8,16 @@
     color: #FFFF;
 }
 
+.btn-modify {
+    background-color: #ffc919;
+    color: #FFFF;
+}
+
+.btn-modify:hover {
+    background-color: #cca010;
+    color: #FFFF;
+}
+
 .btn-back {
     background-color: #93656A;
     color: #FFFF;
