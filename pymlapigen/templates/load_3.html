@@ -102,10 +102,12 @@
     </div>
 
     <h2 class="mt-3"> Generation Parameters: </h2>
-    <label for="sendMail"> Do you want to receive an email when the generation finishes?: </label>
+    {% set mail_configured = "MAIL_SERVER" in config and "MAIL_PORT" in config and "MAIL_USERNAME" in config  and "MAIL_PASSWORD" in config  and "MAIL_USE_TLS" in config  and "MAIL_USE_SSL" in config %}
+    
+    <label for="sendMail"> {% if mail_configured %}Do you want to receive an email when the generation finishes?:{%else%} <strong>Warning!</strong> You have mail server not configured yet.{%endif%}</label>
     <div class="ms-3">
         <div class="form-check mt-3">
-            <input type="radio" name="sendMail" value="Si" class="form-check-input">
+            <input type="radio" name="sendMail" value="Si" class="form-check-input" {% if not mail_configured %} disabled {%endif%}>
             <label for="Si" class="form-check-label">Yes</label>
         </div>
         <div class="row g-3 align-items-center">
@@ -113,14 +115,18 @@
                 <label for="email" class="col-form-label"> Email: </label>
             </div>
             <div class="col-4">
-                <input type="text" id="email" name="email" placeholder="your-email@mail.com" class="form-control">
+                <input type="text" id="email" name="email" placeholder="your-email@mail.com" class="form-control" {% if not mail_configured %} disabled {%endif%}>
             </div>
         </div>
         <div class="form-check mt-3">
-            <input type="radio" name="sendMail" value="No" class="form-check-input" checked>
+            <input type="radio" name="sendMail" value="No" class="form-check-input" checked {% if not mail_configured %} disabled {%endif%}>
             <label for="No" class="form-check-label">No</label>
         </div>
     </div>
+    
+
+ 
+
     <div class="mt-3">
         <a href="{{ url_for('get_load_2',apiName=apiName) }}" class="btn btn-back">Back</a>
         <input type="submit" value="{% if api.ready %}Generate again{% else %}Finish{% endif %}" class="btn ms-1 {% if api.ready %}btn-modify{%endif%}">

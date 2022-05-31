@@ -283,7 +283,7 @@ def post_load_3(apiName):
 
     # If user checked the option of receiving an email, this code does the task
     # It sends an email to user email. (Module Flask-Mail)
-    if(request.form['sendMail'] == 'Si') and ('email' in request.form):
+    if ('sendMail' in request.form) and (request.form['sendMail'] == 'Si') and ('email' in request.form):
 
         # Check email is not an empty String
         if request.form['email'] != "":
@@ -293,7 +293,7 @@ def post_load_3(apiName):
 
             # Mail parameters
             msg = Message('API generation complete',
-                          sender='tfgadrianruizparra@gmail.com', recipients=[email])
+                          sender=flask_app.config["MAIL_USERNAME"], recipients=[email])
             msg.body = "The API has been generated successfully and its currently operable."
 
             # Send email
