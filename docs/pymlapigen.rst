@@ -1,45 +1,59 @@
-pymlapigen package
-==================
+Documentación Código Fuente
+===========================
 
-Submodules
-----------
 
-pymlapigen.api\_generator module
---------------------------------
+Módulo api\_generator
+---------------------
+
+Este módulo se encarga de generar y gestionar una API.
 
 .. automodule:: pymlapigen.api_generator
    :members:
    :undoc-members:
    :show-inheritance:
 
-pymlapigen.cli module
----------------------
+Módulo cli
+----------
+
+Este módulo se encarga de inicializar la aplicación web desde el comando `pymlapigen`.
 
 .. automodule:: pymlapigen.cli
    :members:
    :undoc-members:
    :show-inheritance:
 
-pymlapigen.config module
-------------------------
+Módulo config
+-------------
+
+Este módulo almacena la configuración del microframework utilizado Flask_.
+
+Si quieres recibir correos electrónicos que notifiquen la finalización de la generación,
+debes descomentar e introducir las variables *MAIL_SERVER*, *MAIL_PORT*, *MAIL_USERNAME*, *MAIL_PASSWORD*, *MAIL_USE_TLS* y *MAIL_USE_SSL*.
+
+.. _Flask: https://flask.palletsprojects.com/en/2.1.x/
 
 .. automodule:: pymlapigen.config
    :members:
    :undoc-members:
    :show-inheritance:
 
-pymlapigen.routes module
-------------------------
+Módulo routes
+-------------
+
+Este módulo contiene la lógica de las rutas de la aplicación.
 
 .. automodule:: pymlapigen.routes
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+Módulo principal
+----------------
+
+Paquete PyMLAPIGen. Es el punto de entrada a la aplicación. 
 
 .. automodule:: pymlapigen
    :members:
    :undoc-members:
    :show-inheritance:
+

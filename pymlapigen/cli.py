@@ -3,6 +3,8 @@ import sys
 import os
 
 def cli():
+    """ Runs the pymlapigen app from the console command 
+    """
     # Loads configuration 
     pymlapigen.flask_app.config['APP_FOLDER'] = os.path.dirname(pymlapigen.__file__)
 

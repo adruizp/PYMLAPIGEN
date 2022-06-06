@@ -1,7 +1,7 @@
-""" Imports """
+# Imports
 from flask import Flask
 
-""" Aplicación Flask """
+# Flask Aplication  
 flask_app = Flask(__name__)
 
 # Load configuration 

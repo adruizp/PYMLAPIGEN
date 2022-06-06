@@ -1,4 +1,4 @@
-""" Imports """
+# Imports
 from pymlapigen.api_generator import load_csv, load_json
 from pymlapigen import flask_app
 
@@ -9,34 +9,33 @@ import os
 import base64
 import pickle
 
-""" Local modules settings """
+# Local modules settings
 
 mail = Mail(app=flask_app)
-
-"""
-
-    Web app routes
-
-"""
 
 # Generated APIs
 apis = {}
 
 
-# HOME Route.
+# Web app routes
 
 @flask_app.route("/")
 def home():
+    """Home route."""
+
     global apis
     return render_template("home.html", apis=apis)
 
 
-# API HOME Route
-
 @flask_app.route("/<apiName>")
 def apiHome(apiName):
-    global apis
+    """API's home route
 
+    Args:
+        apiName (str): Name of the API
+    """
+
+    global apis
     # If api does not exists, redirect to generating a new one
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
@@ -44,16 +43,25 @@ def apiHome(apiName):
     return render_template("home.html", apiName=apiName, api=apis[apiName], apis=apis, label=apis[apiName].getInputLabel(), problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm())
 
 
-# LOAD Route. Step 0.
 
 @flask_app.route("/load/0", methods=["GET"])
 def get_load_0():
+    """Load GET route. Step 0.
+
+    Args:
+        apiName (str): Name of the API 
+    """
     global apis
     return render_template("load_0.html")
 
 
 @flask_app.route("/load/0", methods=["POST"])
 def post_load_0():
+    """Load POST route. Step 0.
+
+    Args:
+        apiName (str): Name of the API 
+    """
 
     global apis
 
@@ -96,9 +104,13 @@ def post_load_0():
     return redirect(url_for('get_load_1', apiName=apiName))
 
 
-# LOAD Route. Step 1.
 @flask_app.route("/<apiName>/load/1", methods=["GET"])
 def get_load_1(apiName):
+    """Load GET route. Step 1.
+
+    Args:
+        apiName (str): Name of the API 
+    """
 
     global apis
 
@@ -111,6 +123,11 @@ def get_load_1(apiName):
 
 @flask_app.route("/<apiName>/load/1", methods=["POST"])
 def post_load_1(apiName):
+    """Load POST route. Step 1.
+
+    Args:
+        apiName (str): Name of the API 
+    """
 
     global apis
 
@@ -132,9 +149,13 @@ def post_load_1(apiName):
     return redirect(url_for('get_load_2', apiName=apiName))
 
 
-# LOAD Route. Step 2.
 @flask_app.route("/<apiName>/load/2", methods=["GET"])
 def get_load_2(apiName):
+    """Load GET route. Step 2.
+
+    Args:
+        apiName (str): Name of the API 
+    """
 
     global apis
 
@@ -151,6 +172,11 @@ def get_load_2(apiName):
 
 @flask_app.route("/<apiName>/load/2", methods=["POST"])
 def post_load_2(apiName):
+    """Load POST route. Step 2.
+
+    Args:
+        apiName (str): Name of the API 
+    """
 
     global apis
 
@@ -195,11 +221,15 @@ def post_load_2(apiName):
     # Redirects to the next step
     return redirect(url_for('get_load_3', apiName=apiName))
 
-# LOAD Route. Step 3.
-
 
 @flask_app.route("/<apiName>/load/3", methods=["GET"])
 def get_load_3(apiName):
+    """Load GET route. Step 3.
+
+    Args:
+        apiName (str): Name of the API 
+    """
+
     global apis
 
     # If api does not exists, redirect to generating a new one
@@ -219,6 +249,11 @@ def get_load_3(apiName):
 
 @flask_app.route("/<apiName>/load/3", methods=["POST"])
 def post_load_3(apiName):
+    """Load POST route. Step 3.
+
+    Args:
+        apiName (str): Name of the API 
+    """
 
     global apis
 
@@ -304,19 +339,27 @@ def post_load_3(apiName):
 
     return redirect(url_for('apiHome', apiName=apiName))
 
-# DESTROY Route.
-
 
 @flask_app.route("/destroy/<apiName>/")
 def destroy(apiName):
+    """Destroy route.
+
+    Args:
+        apiName (str): Name of the API to destroy
+    """
     global apis
     del apis[apiName]
     return redirect(url_for('home'))
 
 
-# DATASET Route.
 @flask_app.route("/<apiName>/dataset")
 def dataset(apiName):
+    """Dataset route.
+
+    Args:
+        apiName (str): Name of the API
+    """
+
     global apis
 
     # If the api is not defined or ready, redirects to generating a new API
@@ -337,16 +380,24 @@ def dataset(apiName):
 
 # Generates a CSV file and returns its filename
 def download_CSV(apiName):
+    """Calls the download CSV function from the API and returns its filename
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
     filename = apis[apiName].downloadCSV(os.path.join(flask_app.config['APP_FOLDER'],
                                                       flask_app.config['UPLOAD_FOLDER']))
     return filename
 
-# METRICS Route.
-
 
 @flask_app.route("/<apiName>/metrics")
 def metrics(apiName):
+    """Metrics route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     # If the api is not defined or ready, redirects to generating a new API
@@ -362,6 +413,11 @@ def metrics(apiName):
 # MODEL Route.
 @flask_app.route("/<apiName>/model")
 def model(apiName):
+    """Model route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     # If the api is not defined or ready, redirects to generating a new API
@@ -376,6 +432,11 @@ def model(apiName):
 
 @flask_app.route("/<apiName>/predict", methods=["GET"])
 def predict(apiName):
+    """Predict GET route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     # If the api is not defined or ready, redirects to generating a new API
@@ -387,6 +448,11 @@ def predict(apiName):
 
 @flask_app.route("/<apiName>/predict", methods=["POST"])
 def predict_post(apiName):
+    """Predict POST route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     # If the api is not defined or ready, redirects to generating a new API
@@ -426,6 +492,11 @@ def predict_post(apiName):
 # Ruta GRAPHS.
 @flask_app.route("/<apiName>/graphs")
 def graphs(apiName):
+    """Graphs route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     # If the api is not defined or ready, redirects to generating a new API
@@ -447,6 +518,11 @@ def graphs(apiName):
 # EXPORT Route.
 @flask_app.route("/<apiName>/export")
 def export(apiName):
+    """Export route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     # If the api is not defined or ready, redirects to generating a new API
@@ -463,17 +539,25 @@ def export(apiName):
                                   flask_app.config['UPLOAD_FOLDER'],  apiName + ".api"))
 
 
-# IMPORT Route.
 
 @flask_app.route("/import", methods=["GET"])
 def get_import():
+    """Import GET route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
     return render_template("import.html")
 
 
 @flask_app.route("/import", methods=["POST"])
 def post_import():
+    """Import POST route.
 
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     apiName = request.form['apiName']
@@ -512,17 +596,15 @@ def post_import():
     return redirect(url_for('apiHome', apiName=apiName))
 
 
-"""
 
-    Endpoints de la API REST.
-
-    Every endpoint has the prefix '/api/'
-
-"""
+# JSON API Endpoints.
+# Every endpoint has the prefix '/api/'
 
 
 @flask_app.route("/api/")
 def defaultApiRoute():
+    """JSON Home route.
+    """
     return jsonify({
         "status": "Api is working"
     })
@@ -530,6 +612,12 @@ def defaultApiRoute():
 
 @flask_app.route("/api/<apiName>")
 def homeApi(apiName):
+    """JSON API Home route.
+
+    Args:
+        apiName (str): Name of the API
+    """
+
     global apis
 
     if apiName not in apis or not apis[apiName].ready:
@@ -552,6 +640,11 @@ def homeApi(apiName):
 
 @flask_app.route("/api/<apiName>/dataset")
 def datasetApi(apiName):
+    """JSON API Dataset route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     if apiName not in apis or not apis[apiName].ready:
@@ -562,6 +655,11 @@ def datasetApi(apiName):
 
 @flask_app.route("/api/<apiName>/metrics")
 def metricsApi(apiName):
+    """JSON API Metrics route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     if apiName not in apis or not apis[apiName].ready:
@@ -572,6 +670,11 @@ def metricsApi(apiName):
 
 @flask_app.route("/api/<apiName>/model")
 def modelApi(apiName):
+    """JSON API Model route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     if apiName not in apis or not apis[apiName].ready:
@@ -582,6 +685,11 @@ def modelApi(apiName):
 
 @flask_app.route("/api/<apiName>/predict", methods=["POST"])
 def predictApi(apiName):
+    """JSON API Predict POST route.
+
+    Args:
+        apiName (str): Name of the API
+    """
     global apis
 
     if apiName not in apis or not apis[apiName].ready:
@@ -592,6 +700,8 @@ def predictApi(apiName):
 
 @flask_app.route("/api/load", methods=["POST"])
 def loadApi():
+    """JSON API Load POST route.
+    """
     global apis
 
     data = request.get_json()
