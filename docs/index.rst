@@ -3,6 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+========================================================================
 ¡Bienvenido a la documentación de Python Machine Learning API Generator!
 ========================================================================
 
@@ -11,7 +12,7 @@ La herramienta web para generar API's a través de experimentos de Machine Learn
 
 .. image:: _static/home.png
    :align: center
-   :alt: All plots
+   :alt: PyMLAPIGen
 
 
 **PyMLAPIGen** es una herramienta que permite a cualquier usuario no experto en el dominio de Machine Learning 
@@ -27,10 +28,30 @@ Para la programación de Machine Learning, se ha utilizado la librería Scikit-L
 .. _Scikit-Learn: https://scikit-learn.org/stable/
 
 
-Índice
+Secciones
 ==================
+
+:ref:`Manual de Usuario <manual>`
+---------------------------------
+
+A través de este manual podrás instalar la herramienta, informarte
+acerca de cada opción y probar algunos ejemplos.
+
+
+
+:ref:`Código fuente <pymlapigen>`
+----------------------------------
+
+Aquí encontrarás información acerca de las diferentes funciones y clases
+utilizadas para construir la herramienta.
+
+
+
+
 .. toctree:: 
+   :hidden:
    :maxdepth: 2
    :name: indice
    
+   Manual de Usuario <manual/index>
    Documentación Código Fuente <pymlapigen>

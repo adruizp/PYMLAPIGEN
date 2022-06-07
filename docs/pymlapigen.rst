@@ -1,3 +1,5 @@
+.. _pymlapigen:
+
 Documentación Código Fuente
 ===========================
 
