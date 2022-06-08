@@ -1,4 +1,5 @@
 # Imports
+from re import A
 from pymlapigen.api_generator import load_csv, load_json
 from pymlapigen import flask_app
 
@@ -443,7 +444,8 @@ def predict(apiName):
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
-    return render_template("predict.html", apiName=apiName, api=apis[apiName])
+
+    return render_template("predict.html", apiName=apiName, api=apis[apiName], features=apis[apiName].getFeatures().columns)
 
 
 @flask_app.route("/<apiName>/predict", methods=["POST"])
@@ -460,14 +462,28 @@ def predict_post(apiName):
         return redirect(url_for('get_load_0'))
 
     # Code for JSON form
-    if request.form['form'] == "JSON":
+    if request.form['form'] == "Input":
+        args = request.form.copy()
+        args.pop('form')
+        
+        try:
+            # Predict the values
+            resultPredictHeaders, resultPredictValues, typeResultHeaders, typeResultValues = apis[apiName].predictNewValues(
+                args, typeData="Input")
+        except Exception as e:
+            print(e)
+            return render_template("predict.html", apiName=apiName, api=apis[apiName], features=apis[apiName].getFeatures().columns, error=True)
+
+
+    # Code for JSON form
+    elif request.form['form'] == "JSON":
         jsonInput = request.form['jsonInput']
         try:
             resultPredictHeaders, resultPredictValues, typeResultHeaders, typeResultValues = apis[apiName].predictNewValues(
-                jsonInput)
+                jsonInput, typeData="JSON")
         except Exception as e:
             print(e)
-            return render_template("predict.html", apiName=apiName, api=apis[apiName], error=True)
+            return render_template("predict.html", apiName=apiName, api=apis[apiName], features=apis[apiName].getFeatures().columns, error=True)
 
     # Code for CSV form
     else:
@@ -484,9 +500,9 @@ def predict_post(apiName):
                     file_path, typeData="CSV", separator=request.form['separator'])
             except Exception as e:
                 print(e)
-                return render_template("predict.html", apiName=apiName, api=apis[apiName], error=True)
+                return render_template("predict.html", apiName=apiName, api=apis[apiName], features=apis[apiName].getFeatures().columns, error=True)
 
-    return render_template("predict.html", apiName=apiName, api=apis[apiName], headers=resultPredictHeaders, dataset=resultPredictValues, typeHeader=typeResultHeaders, typeDataset=typeResultValues)
+    return render_template("predict.html", apiName=apiName, api=apis[apiName], features=apis[apiName].getFeatures().columns, headers=resultPredictHeaders, dataset=resultPredictValues, typeHeader=typeResultHeaders, typeDataset=typeResultValues)
 
 
 # Ruta GRAPHS.

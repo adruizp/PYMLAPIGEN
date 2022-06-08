@@ -454,7 +454,7 @@ class API_Generator:
         """Predicts new data using the trained model
 
         Args:
-            inputData (str, dict): If typeData == "JSON", it consists of an str or dict with JSON values. If typeData =="CSV", it contains the CSV file path
+            inputData (str, dict): If typeData == "Input", it consists of a dict with the input data. If typeData == "JSON", it consists of an str or dict with JSON values. If typeData =="CSV", it contains the CSV file path
             typeData (str, optional): Input data type. Defaults to "JSON".
             separator (str, optional): If typeData == "CSV", it represents the CSV file data separator. Defaults to ",".
             toApi (bool, optional): Tells whether the predicción comes from the API JSON endpoint or not. Defaults to False.
@@ -465,7 +465,25 @@ class API_Generator:
             Pandas Dataframe: Auxiliar Dataframe that points the type of the result cells
         """
 
-        if typeData == "JSON":
+        print(typeData)
+
+        if typeData == "Input":
+            
+            #Clean empty data
+            inputData = {k: v for k, v in inputData.items() if v}
+
+            for key in inputData:
+                if inputData[key] == "":
+                    inputData.pop(key)
+                else:
+                    typeLabel = self.datasetDF[key].dtype
+                    if typeLabel not in ['object', 'category']:
+                        inputData[key] = np.cast[typeLabel](inputData[key]).item()
+            
+            inputDf = self.__dataframe_from_input_json(inputData)
+    
+
+        elif typeData == "JSON":
             if isinstance(inputData, str):
                 inputData = json.loads(inputData)
             inputDf = self.__dataframe_from_input_json(inputData)
@@ -483,7 +501,12 @@ class API_Generator:
         cleanPredictInputDf, nullRows = self.__clean_nan_null_input_dataframe(
             predictInputDf)
 
-        result = self.__predict_input_dataframe(cleanPredictInputDf).tolist()
+        print(cleanPredictInputDf)
+        print(cleanPredictInputDf.shape)
+        print(cleanPredictInputDf.shape[0])
+
+        if cleanPredictInputDf.shape[0] > 0:
+            result = self.__predict_input_dataframe(cleanPredictInputDf).tolist()
 
         #  Returns the result if the petition was from the API JSON endpoint
         if toApi:
@@ -508,6 +531,8 @@ class API_Generator:
 
         typeDataframe[self.features] = "Feature"
 
+        
+
         for column in self.dropColumns:
             if column in typeDataframe.columns:
                 typeDataframe[column] = "NotUsed"
@@ -519,7 +544,8 @@ class API_Generator:
             typeDataframe = typeDataframe.rename(
                 columns={self.inputLabel: "Label"})
 
-        typeDataframe[inputDf[self.features].isna().any(axis=1)] = "NullRow"
+        features = list(set(inputDf.columns) & set(self.features))
+        typeDataframe[inputDf[features].isna().any(axis=1)] = "NullRow"
 
         return inputDf.columns, inputDf.values, typeDataframe.columns, typeDataframe.values
 

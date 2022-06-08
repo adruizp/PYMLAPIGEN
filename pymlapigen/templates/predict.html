@@ -5,22 +5,44 @@
 
 {% if error is defined and error %}
 <div class="alert alert-danger alert-dismissible fade show col-5" role="alert">
-  An error has occurred. Cannot predict with the data provided.
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    An error has occurred. Cannot predict with the data provided.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endif %}
 
-<h2> JSON </h2>
+{% if headers is defined and dataset is defined %}
+<div class="alert alert-success alert-dismissible fade show col-5" role="alert">
+    Successfully predicted! Go to <a href="#result" style="color: #0b3b25;">prediction result</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<h2> Input </h2>
+<form method="POST" action="" enctype="multipart/form-data">
+    <input type="hidden" name="form" value="Input">
+
+    <div class="row g-3 align-items-center">
+        {% for feature in features %}
+        <div class="col-auto">
+            <label for="{{feature}}"><strong>{{feature}}</strong></label>
+            <input type="{{feature}}" class="form-control" name="{{feature}}" placeholder="{{feature}}...">
+        </div>
+        {% endfor %}
+
+    </div>
+    <input type="submit" value="Predict" class="btn mt-3">
+</form>
+<h2 class="mt-3"> JSON </h2>
 <form method="POST" action="" enctype="multipart/form-data">
     <input type="hidden" name="form" value="JSON">
     <div class="col-5">
-    <textarea id="jsonInput" name="jsonInput" placeholder="Input JSON..." rows="20" class="form-control"
-        required></textarea>
+        <textarea id="jsonInput" name="jsonInput" placeholder="Input JSON..." rows="20" class="form-control"
+            required></textarea>
     </div>
     <input type="submit" value="Predict" class="btn mt-3">
 </form>
 
-<hr/>
+<hr />
 
 <h2 class="mt-3"> CSV </h2>
 <form method="POST" action="" enctype="multipart/form-data">
@@ -45,9 +67,9 @@
 
 
 {% if headers is defined and dataset is defined %}
-<hr/>
+<hr />
 
-<h2 class="mt-3">Prediction Result</h2>
+<h2 class="mt-3" id="result">Prediction Result</h2>
 
 <div id="datasetTable" class="mx-5 mt-3 table-responsive">
     <table class="table table-sortable">
@@ -81,6 +103,6 @@
 
 
 {% block scripts %}
-    {{ super() }}
-    <script src="{{ url_for('static', filename='js/sortTable.js') }}"></script>
+{{ super() }}
+<script src="{{ url_for('static', filename='js/sortTable.js') }}"></script>
 {% endblock %}
