@@ -192,10 +192,6 @@ def post_load_2(apiName):
     # API's ready attribute is set to False due to it needs training and evaluation
     apis[apiName].ready = False
 
-    # Obtiene la variable objetivo y la carga en la API
-    inputLabel = request.form['inputLabel']
-    apis[apiName].setInputLabel(inputLabel)
-
     # Gets the algoritmo para el modelo
     modelType = request.form['modelType']
 
@@ -215,6 +211,13 @@ def post_load_2(apiName):
 
     # Carga el tipo de problema ML y el algoritmo en la API
     apis[apiName].setAlgorithm(mltype, modelType)
+
+
+    # Obtiene la variable objetivo y la carga en la API
+    if mltype != "Clustering":
+        inputLabel = request.form['inputLabel']
+        apis[apiName].setInputLabel(inputLabel)
+
 
     # Sets the current step to 3. This will enable step 3.
     apis[apiName].step = 3
@@ -405,10 +408,13 @@ def metrics(apiName):
     if apiName not in apis or not apis[apiName].ready:
         return redirect(url_for('get_load_0'))
 
-    inputLabel = apis[apiName].getInputLabel()
-    x_test, y_test, predictions = apis[apiName].getPredictions()
-
-    return render_template("metrics.html", apiName=apiName, api=apis[apiName], problem=apis[apiName].getProblem(), headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, test_label=inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
+    if apis[apiName].getProblem() != "Clustering":
+        inputLabel = apis[apiName].getInputLabel()
+        x_test, y_test, predictions = apis[apiName].getTestSet()
+        return render_template("metrics.html", apiName=apiName, api=apis[apiName], problem=apis[apiName].getProblem(), headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, test_label=inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
+    else:
+        x_test, predictions = apis[apiName].getTestSet()
+        return render_template("metrics.html", apiName=apiName, api=apis[apiName], problem=apis[apiName].getProblem(), headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, x_test=x_test.values, predictions=predictions)
 
 
 # MODEL Route.

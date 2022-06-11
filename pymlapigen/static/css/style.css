@@ -178,3 +178,7 @@ footer {
 .showable-enabled:after{
     content: "\25be"
 }
+
+#clusteringSelected{
+    color: #9e3a3a;
+}

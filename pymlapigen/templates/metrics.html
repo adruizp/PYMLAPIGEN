@@ -48,8 +48,10 @@
                 {% for item in test_headers %}
                 <th scope="col">{{ item }}</th>
                 {% endfor %}
+                {% if "Clustering" not in problem %}
                 <th scope="col" class="labelHeader">{{ test_label }} (label)</th>
-                <th scope="col" class="lastHeader" >Predicted label</th>
+                {% endif %}
+                <th scope="col" class="lastHeader" >{% if "Clustering" not in problem %}Predicted label{% else %}Cluster{% endif %}</th>
                 {% if "Clustering" not in problem %}
                 <th scope="col">
                     {% if "Classification" in problem %}
@@ -69,7 +71,9 @@
                 {% for value in feature %}
                 <td> {{ value }}</td>
                 {% endfor %}
+                {% if "Clustering" not in problem %}
                 <td class="labelValue"> {{ y_test[loop.index - 1] }}</td>
+                {% endif %}
                 <td class="lastValue"> {{ predictions[loop.index - 1] }}</td>
                 {% if "Clustering" not in problem %}
                 <td>

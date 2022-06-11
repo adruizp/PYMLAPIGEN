@@ -12,7 +12,7 @@
 
 {% if apiName is defined %}
 
-<h3 class="mt-3 d-flex justify-content-center"> {{ problema }} ({{label}}) - {{algorithm}}</h2>
+<h3 class="mt-3 d-flex justify-content-center"> {{ problema }} {% if "Clustering" not in problema %}({{label}}){% endif %} - {{algorithm}}</h2>
 
     <h2 class="mt-3 mx-3">Web app routes</h2>
     <div class="mx-5">

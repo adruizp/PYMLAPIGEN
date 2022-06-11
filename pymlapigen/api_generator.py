@@ -228,7 +228,10 @@ class API_Generator:
         self.dropColumns = dropColumns
         self.datasetDF = self.datasetDF.drop(dropColumns, axis=1)
 
-        self.features = self.datasetDF.drop(self.inputLabel, axis=1).columns
+        if self.mltype != "Clustering":
+            self.features = self.datasetDF.drop(self.inputLabel, axis=1).columns
+        else:
+            self.features = self.datasetDF.columns
 
     def setTestSize(self, testSize=0.3):
         """Sets the test set size percentage
@@ -254,13 +257,21 @@ class API_Generator:
 
         self.enc = OneHotEncoder(handle_unknown='ignore')
 
-        self.x = self.__ohe_encode(self.datasetDF.drop(
-            self.inputLabel, axis=1), isTraining=True)
-        self.y = self.datasetDF[self.inputLabel]
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
-            self.x, self.y, test_size=self.testSize, random_state=42)
+        if self.mltype != "Clustering":
+            self.x = self.__ohe_encode(self.datasetDF.drop(
+                self.inputLabel, axis=1), isTraining=True)
+            self.y = self.datasetDF[self.inputLabel]
+            self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
+                self.x, self.y, test_size=self.testSize, random_state=42)
 
-        self.model.fit(self.x_train, self.y_train)
+            self.model.fit(self.x_train, self.y_train)
+        
+        else:
+            self.x = self.__ohe_encode(self.datasetDF, isTraining=True)
+            self.x_train, self.x_test= train_test_split(
+                self.x, test_size=self.testSize, random_state=42)
+
+            self.model.fit(self.x_train)
 
     def evaluateModel(self):
         """ Evaluates the API's model generating metrics.
@@ -307,10 +318,10 @@ class API_Generator:
                 self.x_train, self.model.labels_)
             self.metrics["davies_bouldin"] = davies_bouldin_score(
                 self.x_train, self.model.labels_)
-            self.metrics["rand_score"] = rand_score(
-                self.y_test, self.predictions)
-            self.metrics["v-measure"] = v_measure_score(
-                self.y_test, self.predictions)
+            #self.metrics["rand_score"] = rand_score(
+            #    self.y_test, self.predictions)
+            #self.metrics["v-measure"] = v_measure_score(
+            #    self.y_test, self.predictions)
 
     def getAlgorithm(self):
         """Returns the model's algorithm full name
@@ -347,7 +358,8 @@ class API_Generator:
         """
 
         modelParams = {}
-        modelParams["label"] = self.inputLabel
+        if self.mltype != "Clustering":
+            modelParams["label"] = self.inputLabel
         modelParams["features"] = self.features.tolist()
         modelParams["problem"] = self.mltype
 
@@ -368,7 +380,7 @@ class API_Generator:
             else:
                 modelParams["classification"] = "Multi-Label"
 
-        if self.mltype == "Classification" or self.mltype == "Clustering":
+        if self.mltype == "Classification":
             modelParams["labels"] = self.getPossibleLabels().tolist()
 
         modelParams["NanNull"] = self.nanNullMode
@@ -397,7 +409,10 @@ class API_Generator:
         Returns:
             list: Dataset feature columns
         """
-        return self.datasetDF.drop(self.inputLabel, axis=1)
+        if self.mltype != "Clustering":
+            return self.datasetDF.drop(self.inputLabel, axis=1)
+        else:
+            return self.datasetDF
 
     def getInputLabel(self):
         """Returns the input label name
@@ -405,7 +420,10 @@ class API_Generator:
         Returns:
             str: Input label name
         """
-        return self.inputLabel
+        if self.mltype != "Clustering":
+            return self.inputLabel
+        else:
+            return ""
 
     def getPossibleLabels(self):
         """Returns the unique values of the label column. Used in Classification problems.
@@ -413,7 +431,10 @@ class API_Generator:
         Returns:
             numpy.ndarray: Unique values of the label column.
         """
-        return self.datasetDF[self.inputLabel].unique()
+        if self.mltype == "Classification":
+            return self.datasetDF[self.inputLabel].unique()
+        else:
+            return None
 
     def getValues(self):
         """Returns the rows of the dataset
@@ -438,6 +459,9 @@ class API_Generator:
             return self.mltype
 
     def getPredictions(self):
+        return self.predictions
+
+    def getTestSet(self):
         """Returns the API's test set, the label values and predicted values
 
         Returns:
@@ -445,10 +469,21 @@ class API_Generator:
             y_test (Pandas Series): Test set label values.
             predictions (List): Test set label predicted values.
         """
-        noOHE = self.datasetDF.iloc[self.x_test.index].drop(
-            self.inputLabel, axis=1)
 
-        return noOHE, self.y_test, self.predictions
+        if self.mltype != "Clustering":
+            noOHE = self.datasetDF.iloc[self.x_test.index].drop(
+                self.inputLabel, axis=1)
+            return noOHE, self.y_test, self.predictions
+
+        else:
+            noOHE = self.datasetDF.iloc[self.x_test.index]
+            return noOHE, self.predictions
+        
+
+       
+
+    
+        
 
     def predictNewValues(self, inputData, typeData="JSON", separator=",", toApi=False):
         """Predicts new data using the trained model
@@ -491,7 +526,10 @@ class API_Generator:
         elif typeData == "CSV":
             inputDf = pd.read_csv(inputData, sep=separator)
 
-        predictInputDf = inputDf.drop(self.inputLabel, axis=1, errors='ignore')
+        predictInputDf = inputDf
+
+        if self.mltype != "Clustering":
+            predictInputDf = predictInputDf.drop(self.inputLabel, axis=1, errors='ignore')
         predictInputDf = predictInputDf.drop(
             self.dropColumns, axis=1, errors='ignore')
 
@@ -539,7 +577,7 @@ class API_Generator:
                 typeDataframe = typeDataframe.rename(
                     columns={column: "NotUsed"})
 
-        if self.inputLabel in typeDataframe.columns:
+        if self.mltype != "Clustering" and self.inputLabel in typeDataframe.columns:
             typeDataframe[self.inputLabel] = "Label"
             typeDataframe = typeDataframe.rename(
                 columns={self.inputLabel: "Label"})
