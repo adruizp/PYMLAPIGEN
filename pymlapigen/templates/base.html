@@ -107,7 +107,7 @@
                             href="{{url_for('model',apiName=apiName)}}">Model</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'predict' %}active{% endif %}"
+                        <a class="nav-link {% if request.endpoint == 'predict' or request.endpoint == 'predict_post' %}active{% endif %}"
                             href="{{url_for('predict',apiName=apiName)}}">Predict</a>
                     </li>
                     <li class="nav-item">
