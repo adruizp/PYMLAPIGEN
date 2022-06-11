@@ -9,7 +9,6 @@ es una clase dentro de un **número discreto** de **clases**.
 Si se intenta predecir entre dos clases se trata de una **clasificación binaria**
 mientras que si el número de clases posibles es superior a dos se trata de una **clasificación multiclase**.
 
-.. _dataset:
 
 Dataset
 -------
@@ -65,7 +64,7 @@ Dentro de la aplicación, para comenzar la generación de la API, desplegar el m
 
 Paso 1
 ^^^^^^
-.. image:: _static/paso_1_clas.png
+.. image:: _static/paso_1.png
    :align: center
    :alt: Paso 1 Clasificación
 
@@ -75,7 +74,7 @@ Para este ejemplo, introduciremos en el formulario los siguientes valores:
 
 :API Name: *ClassificationAPI*
 :Separator: *,*
-:File: *Fichero descargado del apartado* `dataset`_
+:File: *Fichero descargado del apartado* `dataset <#dataset>`_
 
 Una vez introducidos los parámetros, presionar el botón **Next**.
 
