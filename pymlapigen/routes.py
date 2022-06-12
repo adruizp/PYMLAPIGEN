@@ -221,14 +221,14 @@ def post_load_2(apiName):
     else:
         mltype = "Unknown"
 
-    # Carga el tipo de problema ML y el algoritmo en la API
-    apis[apiName].setAlgorithm(mltype, modelType)
-
-
     # Obtiene la variable objetivo y la carga en la API
     if mltype != "Clustering":
         inputLabel = request.form['inputLabel']
         apis[apiName].setInputLabel(inputLabel)
+    
+    # Carga el tipo de problema ML y el algoritmo en la API
+    apis[apiName].setAlgorithm(mltype, modelType)
+
 
 
     # Sets the current step to 3. This will enable step 3.
@@ -386,9 +386,6 @@ def dataset(apiName):
     # If user selects download option
     if "download" in request.args:
         if (request.args["download"] == "CSV"):
-            print(os.path.join(flask_app.config['APP_FOLDER'],
-                               flask_app.config['UPLOAD_FOLDER'],  download_CSV(apiName)))
-
             return send_file(os.path.join(flask_app.config['APP_FOLDER'],
                                           flask_app.config['UPLOAD_FOLDER'],  download_CSV(apiName)))
 

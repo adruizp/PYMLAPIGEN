@@ -4,8 +4,8 @@
 Manual de usuario
 =================
 
-A través de este manual podrás instalar la herramienta, informarte
-acerca de cada opción en la aplicación y probar algunos ejemplos.
+A través de este manual podrás **instalar** la herramienta, informarte
+acerca de cada **opción** en la aplicación y probar algunos **ejemplos**.
 
 **Índice:**
 
@@ -14,4 +14,7 @@ acerca de cada opción en la aplicación y probar algunos ejemplos.
 
    install
    quickstart/index
-   options
+   generation
+   windows
+   endpoints
+   additional

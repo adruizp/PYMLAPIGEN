@@ -10,3 +10,6 @@ pymlapigen/static/files
 # Sphinx documentation
 docs/_build/
 docs/__pycache__/
+
+#VSCode extensions
+.vscode/
