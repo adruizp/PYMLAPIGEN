@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score, rand_score, v_measure_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 from sklearn.preprocessing import OneHotEncoder
 
@@ -26,7 +26,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.cluster import KMeans
 from sklearn.cluster import AffinityPropagation
 from sklearn.cluster import MeanShift
-from sklearn.cluster import Birch
+from sklearn.cluster import MiniBatchKMeans
 
 
 import scikitplot as skplt
@@ -192,8 +192,8 @@ class API_Generator:
                 self.model = AffinityPropagation()
             elif self.modelType == "MS":
                 self.model = MeanShift()
-            elif self.modelType == "B":
-                self.model = Birch()
+            elif self.modelType == "MKM":
+                self.model = MiniBatchKMeans()
             else:
                 raise Exception(
                     self.modelType + " is not related with any clustering algorithm.")
@@ -268,16 +268,16 @@ class API_Generator:
         
         else:
             self.x = self.__ohe_encode(self.datasetDF, isTraining=True)
-            self.x_train, self.x_test= train_test_split(
-                self.x, test_size=self.testSize, random_state=42)
-
-            self.model.fit(self.x_train)
 
     def evaluateModel(self):
         """ Evaluates the API's model generating metrics.
         """
+        
+        if self.mltype != "Clustering":
+            self.predictions = self.model.predict(self.x_test)
+        else:
+            self.predictions = self.model.fit_predict(self.x)
 
-        self.predictions = self.model.predict(self.x_test)
         self.metrics = {}
 
         if self.mltype == "Classification":
@@ -313,15 +313,11 @@ class API_Generator:
 
         elif self.mltype == "Clustering":
             self.metrics["silhouette_coefficient"] = silhouette_score(
-                self.x_train, self.model.labels_)
+                self.x, self.model.labels_)
             self.metrics["calinski_harabaz"] = calinski_harabasz_score(
-                self.x_train, self.model.labels_)
+                self.x, self.model.labels_)
             self.metrics["davies_bouldin"] = davies_bouldin_score(
-                self.x_train, self.model.labels_)
-            #self.metrics["rand_score"] = rand_score(
-            #    self.y_test, self.predictions)
-            #self.metrics["v-measure"] = v_measure_score(
-            #    self.y_test, self.predictions)
+                self.x, self.model.labels_)
 
     def getAlgorithm(self):
         """Returns the model's algorithm full name
@@ -345,7 +341,7 @@ class API_Generator:
             "KM": "KMeans",
             "AP": "AffinityPropagation",
             "MS": "MeanShift",
-            "B": "Birch"
+            "MKM": "MiniBatchKMeans"
         }
 
         return algorithms[self.modelType]
@@ -392,8 +388,10 @@ class API_Generator:
         modelParams["algorithm_args"] = self.algorithmParams
 
         modelParams["dataset_size"] = self.datasetDF.shape[0]
-        modelParams["training_size"] = self.x_train.shape[0]
-        modelParams["testing_size"] = self.x_test.shape[0]
+
+        if self.mltype != "Clustering":
+            modelParams["training_size"] = self.x_train.shape[0]
+            modelParams["testing_size"] = self.x_test.shape[0]
         return modelParams
 
     def getColumns(self):
@@ -458,10 +456,8 @@ class API_Generator:
         else:
             return self.mltype
 
-    def getPredictions(self):
-        return self.predictions
 
-    def getTestSet(self):
+    def getPredictions(self):
         """Returns the API's test set, the label values and predicted values
 
         Returns:
@@ -476,8 +472,7 @@ class API_Generator:
             return noOHE, self.y_test, self.predictions
 
         else:
-            noOHE = self.datasetDF.iloc[self.x_test.index]
-            return noOHE, self.predictions
+            return self.datasetDF, self.predictions
         
 
        
@@ -499,8 +494,6 @@ class API_Generator:
             Pandas Dataframe: Input Dataframe with a result column appended
             Pandas Dataframe: Auxiliar Dataframe that points the type of the result cells
         """
-
-        print(typeData)
 
         if typeData == "Input":
             
@@ -538,10 +531,6 @@ class API_Generator:
 
         cleanPredictInputDf, nullRows = self.__clean_nan_null_input_dataframe(
             predictInputDf)
-
-        print(cleanPredictInputDf)
-        print(cleanPredictInputDf.shape)
-        print(cleanPredictInputDf.shape[0])
 
         if cleanPredictInputDf.shape[0] > 0:
             result = self.__predict_input_dataframe(cleanPredictInputDf).tolist()
@@ -641,7 +630,7 @@ class API_Generator:
                 returnGraphs.append(skplt.metrics.plot_roc(
                     self.y_test, self.model.predict_proba(self.x_test)).get_figure())
         elif self.mltype == "Clustering":
-            cluster_labels = self.model.predict(self.x)
+            cluster_labels = self.predictions
             returnGraphs.append(skplt.metrics.plot_silhouette(
                 self.x, cluster_labels).get_figure())
             if hasattr(self.model, 'n_clusters') and hasattr(self.model, 'score'):

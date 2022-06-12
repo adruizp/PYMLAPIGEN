@@ -41,6 +41,18 @@ def apiHome(apiName):
     if apiName not in apis:
         return redirect(url_for('get_load_0'))
 
+    # If apis[apiName] is on step 1, it will redirect to step 1
+    elif apis[apiName].step == 1:
+        return redirect(url_for('get_load_1', apiName=apiName))
+
+    # If apis[apiName] is on step 2, it will redirect to step 2
+    elif apis[apiName].step == 2:
+        return redirect(url_for('get_load_2', apiName=apiName))
+
+    # If apis[apiName] is on step 3, it will redirect to step 3
+    elif apis[apiName].step == 3 and not apis[apiName].ready:
+        return redirect(url_for('get_load_3', apiName=apiName))
+
     return render_template("home.html", apiName=apiName, api=apis[apiName], apis=apis, label=apis[apiName].getInputLabel(), problema=apis[apiName].getProblem(), algorithm=apis[apiName].getAlgorithm())
 
 
@@ -198,7 +210,7 @@ def post_load_2(apiName):
     # A partir del algoritmo escogido, se obtiene el tipo de problema ML (Clasificación, Regresión o Clustering)
     classification = ["GNB", "SVC", "KNN", "DT", "RF"]
     regression = ["LR", "SVR", "SGDR", "KR", "GBR"]
-    clustering = ["KM", "AP", "MS", "B"]
+    clustering = ["KM", "AP", "MS", "MKM"]
 
     if modelType in classification:
         mltype = "Classification"
@@ -300,8 +312,9 @@ def post_load_3(apiName):
     apis[apiName].setDropColumns(dropColumns)
 
     # Gets and sets the testSize of the API
-    testSize = request.form['testSize']
-    apis[apiName].setTestSize(testSize)
+    if apis[apiName].getProblem() != "Clustering":
+        testSize = request.form['testSize']
+        apis[apiName].setTestSize(testSize)
 
     # If it is an Binary Classification problem, it gets the positive Label
     # (in order to calculate False Negatives, True Negatives, False Positives, True Positives)
@@ -410,10 +423,10 @@ def metrics(apiName):
 
     if apis[apiName].getProblem() != "Clustering":
         inputLabel = apis[apiName].getInputLabel()
-        x_test, y_test, predictions = apis[apiName].getTestSet()
+        x_test, y_test, predictions = apis[apiName].getPredictions()
         return render_template("metrics.html", apiName=apiName, api=apis[apiName], problem=apis[apiName].getProblem(), headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, test_label=inputLabel, x_test=x_test.values, y_test=y_test.values, predictions=predictions)
     else:
-        x_test, predictions = apis[apiName].getTestSet()
+        x_test, predictions = apis[apiName].getPredictions()
         return render_template("metrics.html", apiName=apiName, api=apis[apiName], problem=apis[apiName].getProblem(), headers=apis[apiName].metrics.keys(), metrics=apis[apiName].metrics.values(), test_headers=x_test.columns, x_test=x_test.values, predictions=predictions)
 
 
@@ -734,8 +747,6 @@ def loadApi():
         return jsonify({"error": "There is no apiName in the POST body and it must be supplied"})
     if "dataset" not in data:
         return jsonify({"error": "There is no dataset in the POST body and it must be supplied"})
-    if "inputLabel" not in data:
-        return jsonify({"error": "There is no inputLabel in the POST body and it must be supplied"})
     if "modelType" not in data:
         return jsonify({"error": "There is no modelType in the POST body and it must be supplied"})
 
@@ -764,16 +775,13 @@ def loadApi():
     else:
         apis[apiName].processNanNull("drop")
 
-    # Gets the inputLabel
-    apis[apiName].setInputLabel(data["inputLabel"])
-
     # Gets the model algorithm
     modelType = data["modelType"]
 
     # Gets the Machine Learning problem from the model algorithm (Classification, Regression or Clustering)
     classification = ["GNB", "SVC", "KNN", "DT", "RF"]
     regression = ["LR", "SVR", "SGDR", "KR", "GBR"]
-    clustering = ["KM", "AP", "MS", "B"]
+    clustering = ["KM", "AP", "MS", "MKM"]
 
     if modelType in classification:
         mltype = "Classification"
@@ -783,6 +791,14 @@ def loadApi():
         mltype = "Clustering"
     else:
         mltype = "Unknown"
+
+    
+    if mltype != "Clustering":
+        if "inputLabel" not in data:
+            return jsonify({"error": "There is no inputLabel in the POST body and it must be supplied"})
+        else:        
+            # Gets the inputLabel
+            apis[apiName].setInputLabel(data["inputLabel"])
 
     # Sets the APIs model algorithm and ML problem
     apis[apiName].setAlgorithm(mltype, modelType)

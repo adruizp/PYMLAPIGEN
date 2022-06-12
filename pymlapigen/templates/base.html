@@ -24,7 +24,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-gradient">
         <div class="container-fluid">
             <a class="navbar-brand" href="
-            {% if apiName is defined %}
+            {% if apiName is defined and api.ready %}
             {{ url_for('apiHome',apiName=apiName) }}
             {% else %}
             {{ url_for('home') }}
