@@ -1,6 +1,6 @@
-==============
-Ejemplos (WIP)
-==============
+========
+Ejemplos
+========
 
 En esta sección encontrarás ejemplos sencillos para que generes
 tus primeras APIs.

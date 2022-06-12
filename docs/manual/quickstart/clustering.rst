@@ -1,6 +1,6 @@
-================
-Clustering (WIP)
-================
+==========
+Clustering
+==========
 
 En este apartado se mostrará un ejemplo de uso de la aplicación para **generar una API** con un experimento de **clustering**.
 
@@ -20,7 +20,9 @@ Las columnas de este dataset son las siguientes:
 :sepal_width: **Atributo** que indica la anchura del sépalo. (*Float*)
 :petal_length: **Atributo** que indica la longitud del petalo. (*Float*)
 :petal_width: **Atributo** que indica la anchura del petalo. (*Float*)
-:species: **Conjunto asignado** a través del clustering. (*Clúster*)
+:species: **Atributo** que indica la especie de la flor. (*String*)
+
+En el caso ideal, los conjuntos formados coincidirán con las especies.
 
 
 ::
@@ -83,7 +85,7 @@ Paso 2
    :align: center
    :alt: Paso 2 Clustering
 
-En este paso, se debe escoger **que hacer** con los **valores que faltan** o **NaN** del dataset.
+En este paso, se debe escoger **qué hacer** con los **valores que faltan** o **NaN** del dataset.
 
 Como en el dataset de este ejemplo todos los valores **están** y son **válidos**, este paso es irrelevante.
 
@@ -95,26 +97,29 @@ Paso 3
    :align: center
    :alt: Paso 3 Clustering
 
-En este paso, se debe escoger la **etiqueta** del dataset en el cual se asignará el cluster del experimento de clustering.
+En este paso, se debe escoger el **algoritmo** de Machine Learning que llevará a cabo el modelo que se entrenará.
 
-También se debe elegir el **algoritmo** de Machine Learning que llevará a cabo el modelo que se entrenará.
+Al tratarse de un experimento de *clustering*, no hay que seleccionar ninguna **etiqueta**.
 
 Para este ejemplo, introduciremos en el formulario los siguientes valores:
 
-:Label: *species*
 :Algorithm: *Clustering > K-Means*
 
 Una vez introducidos los parámetros, presionar el botón **Next**.
 
 Paso 4
 ^^^^^^
-.. image:: _static/paso_4_clas.png
+.. image:: _static/paso_4_clus.png
    :align: center
    :alt: Paso 4 Clustering
 
 En este último paso, se deben seleccionar los **parámetros adicionales** del experimento.
 
-Para este ejemplo, se dejarán las **opciones por defecto** y se presiona el botón **Finish** para comenzar la **generación de la API**.
+Como se esta utilizando el algoritmo *K-Means*, seleccionaremos el número de conjuntos (*clusters*) que deseamos que se formen. Se eligirá 3 ya que es el número de especies del dataset.
+
+Para ello, desplegar **Algorithm Parameters** e introducir el valor *3* en *n_clusters*.
+
+El resto de opciones se dejarán las **por defecto** y se presiona el botón **Finish** para comenzar la **generación de la API**.
 
 
 
@@ -123,7 +128,7 @@ Ventanas API (Herramienta Web)
 
 Una vez se genere la API (entrenamiento y evaluación del modelo) se nos redirigirá a la ventana **HOME** de la API (http://localhost:5000/ClusteringAPI).
 
-.. image:: _static/home_clas.png
+.. image:: _static/home_clus.png
    :align: center
    :alt: Home API Clustering
 
@@ -134,7 +139,7 @@ Además, en la **barra de navegación** podrás navegar entre las distintas vent
 Dataset
 ^^^^^^^
 
-.. image:: _static/dataset_clas.png
+.. image:: _static/dataset_clus.png
    :align: center
    :alt: Dataset API Clustering
 
@@ -147,7 +152,7 @@ También puedes **ordenar** la tabla pulsando en las cabeceras y aplicar **filtr
 Métricas
 ^^^^^^^^
 
-.. image:: _static/metrics_clas.png
+.. image:: _static/metrics_clus.png
    :align: center
    :alt: Metrics API Clustering
 
@@ -155,12 +160,12 @@ Métricas
 
 En esta ventana podrás **visualizar** las métricas del experimento de la API generada.
 
-También puedes **desplegar** y **echar un vistazo** al resultado de la **fase de evaluación** del experimento. En él, puedes ver el **valor original** de la etiqueta/clase, el **valor predicho** y si es **correcto o no**. 
+También puedes **desplegar** y **echar un vistazo** al resultado de la **fase de asignación de conjuntos** del experimento. En él, puedes ver el **clúster** al cual se ha **asignado** cada entrada del dataset. Al elegir 3 clústeres en la generación de la API, los tres clústeres generados son 1, 2 y 3.
 
 Model
 ^^^^^
 
-.. image:: _static/model_clas.png
+.. image:: _static/model_clus.png
    :align: center
    :alt: Model API Clustering
 
@@ -171,7 +176,7 @@ En esta ventana podrás **visualizar** los parámetros escogidos para el experim
 Predecir
 ^^^^^^^^
 
-.. image:: _static/predict_clas.png
+.. image:: _static/predict_clus.png
    :align: center
    :alt: Predecir API Clustering
 
@@ -195,30 +200,33 @@ Una vez introducidos los datos y pulsado el botón **Predict**, si los datos son
       "sepal_length": 4.9,
       "sepal_width": 3.0,
       "petal_length": 1.4,
-      "petal_width": 0.2
+      "petal_width": 0.2,
+      "species": "Setosa"
    }, {
       "sepal_length": 6.3,
       "sepal_width": 2.7,
       "petal_length": 4.9,
-      "petal_width": 1.8
+      "petal_width": 1.8,
+      "species": "Virginica"
    }, {
       "sepal_length": 4.8,
       "sepal_width": 3.1,
       "petal_length": 1.6,
-      "petal_width": 0.2
+      "petal_width": 0.2,
+      "species": "Setosa"
    }]
 
 El resultado es el siguiente:
 
 
-.. image:: _static/predict_result_clas.png
+.. image:: _static/predict_result_clus.png
    :align: center
    :alt: Resultado Predicción API Clustering
 
 Gráficos
 ^^^^^^^^
 
-.. image:: _static/graph_clas.png
+.. image:: _static/graph_clus.png
    :align: center
    :alt: Gráficos API Clustering
 
@@ -233,7 +241,7 @@ Además de la aplicación web, es posible generar y utilizar la API a partir de 
 
 Petición JSON (/load)
 ^^^^^^^^^^^^^^^^^^^^^
-Para generar una API equivalente al generado con la aplicación web, se debe enviar una petición **HTTP POST** al endpoint http://localhost:5000/api/load. El cuerpo de esta petición HTTP POST será :download:`este JSON<_static/classification_quickstart.json>`. 
+Para generar una API equivalente al generado con la aplicación web, se debe enviar una petición **HTTP POST** al endpoint http://localhost:5000/api/load. El cuerpo de esta petición HTTP POST será :download:`este JSON<_static/clustering_quickstart.json>`. 
 
 Si todo funciona correctamente, se nos debería devolver el siguiente resultado de la operación:
 
@@ -316,28 +324,10 @@ Resultado:
 ::
 
    {
-      "accuracy": 0.9777777777777777, 
-      "precision": 0.9777777777777777, 
-      "recall": 0.9743589743589745, 
-      "f1": 0.974320987654321, 
-      "confusion_matrix": [
-            [
-               19, 
-               0, 
-               0
-            ], 
-            [
-               0, 
-               12, 
-               1
-            ], 
-            [
-               0, 
-               0, 
-               13
-            ]
-         ]
-      }
+      "silhouette_coefficient": 0.369247326698845, 
+      "calinski_harabaz": 482.3198481255937, 
+      "davies_bouldin": 0.9080585128589639
+   }
 
 
 GET Model
@@ -352,27 +342,19 @@ Resultado:
 ::
 
    {
-      "label": "species", 
       "features": [
-         "petal_length", 
-         "petal_width", 
-         "sepal_length", 
-         "sepal_width"
+            "petal_length", 
+            "petal_width", 
+            "sepal_length", 
+            "sepal_width", 
+            "species"
       ], 
       "problem": "Clustering", 
-      "classification": "Multi-Label", 
-      "labels": [
-         "Setosa", 
-         "Versicolor", 
-         "Virginica"
-      ], 
       "NanNull": "drop", 
       "dropped": [], 
-      "algorithm": "GaussianNB", 
+      "algorithm": "KMeans", 
       "algorithm_args": {}, 
-      "dataset_size": 150, 
-      "training_size": 105, 
-      "testing_size": 45
+      "dataset_size": 150
    }
 
 POST Predict
@@ -393,17 +375,20 @@ Por ejemplo se va a mostrar una petición HTTP POST cuyo cuerpo es:
       "sepal_length": 4.9,
       "sepal_width": 3.0,
       "petal_length": 1.4,
-      "petal_width": 0.2
+      "petal_width": 0.2,
+      "species": "Setosa"
    }, {
       "sepal_length": 6.3,
       "sepal_width": 2.7,
       "petal_length": 4.9,
-      "petal_width": 1.8
+      "petal_width": 1.8,
+      "species": "Virginica"
    }, {
       "sepal_length": 4.8,
       "sepal_width": 3.1,
       "petal_length": 1.6,
-      "petal_width": 0.2
+      "petal_width": 0.2,
+      "species": "Setosa"
    }]
 
 
@@ -412,7 +397,7 @@ Resultado:
 ::
 
    [
-    "Setosa",
-    "Virginica",
-    "Setosa"
+      1,
+      2,
+      1
    ]

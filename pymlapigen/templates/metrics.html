@@ -39,7 +39,7 @@
     </table>
 </div>
 
-<h2 class="mt-3 showable showable-disabled" onclick="toggle()">Test set evaluation</h2>
+<h2 class="mt-3 showable showable-disabled" onclick="toggle()">{% if "Clustering" not in problem %}Test set evaluation{% else %}Dataset Clustering Assignment{% endif %}</h2>
 <div class="mx-5 mt-3 table-responsive">
     <table id="predictionTable" class="table table-sortable " id="datasetTable">
         <thead>

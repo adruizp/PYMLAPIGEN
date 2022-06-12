@@ -85,7 +85,7 @@ Paso 2
    :align: center
    :alt: Paso 2 Regresión
 
-En este paso, se debe escoger **que hacer** con los **valores que faltan** o **NaN** del dataset.
+En este paso, se debe escoger **qué hacer** con los **valores que faltan** o **NaN** del dataset.
 
 Como en el dataset de este ejemplo todos los valores **están** y son **válidos**, este paso es irrelevante.
 
