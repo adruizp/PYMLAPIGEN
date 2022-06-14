@@ -1,6 +1,8 @@
-============================
-Opciones de generación (WIP)
-============================
+======================
+Opciones de generación
+======================
+
+En esta sección se comentará todas las **opciones** de las que se dispone a la hora de **generar una API** a través de un experimento.
 
 Paso 1 - Nombre y dataset CSV
 -----------------------------
@@ -73,11 +75,14 @@ Los campos del formulario de este paso son los siguientes:
 :Drop columns from dataset: **Atributos** del dataset que no se desean conservar. Aquellas columnas seleccionadas serán desechadas del dataset.
 :Email: Si se ha configurado el :ref:`mail`, en esta opción podrás seleccionar si recibir o no un **correo electrónico** una vez **finalice** la **generación de la API**.
 
+
+.. _endpoint-json-post:
+
 Endpoint JSON POST
 ------------------
 Es posible generar una API desde una petición **HTTP POST** al endpoint (**/api/load**).
 
-El cuerpo de la petición POST será un **objeto JSON**. Los atributos de este objeto serán:
+El cuerpo de la petición POST será un **objeto JSON**. Los **atributos** de este objeto serán:
 
 :apiName: **Nombre** de la API a generar. Todas las rutas de la API tendrán el prefijo */nombre/*. El nombre debe ser único y diferente a "api". **Obligatorio**.
 :dataset: **Dataset** del experimento. Consiste en un array de JSON cuyos elementos son objetos JSON con los atributos. **Obligatorio**.

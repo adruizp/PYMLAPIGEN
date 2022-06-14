@@ -63,6 +63,11 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td class="rowIndex"><a href="{{url_for('homeApi',apiName=apiName)}}">Home</a></td>
+                        <td>GET</td>
+                        <td>{{url_for('homeApi',apiName=apiName)}}</td>
+                    </tr>
+                    <tr>
                         <td class="rowIndex"><a href="{{url_for('datasetApi',apiName=apiName)}}">Dataset</a></td>
                         <td>GET</td>
                         <td>{{url_for('datasetApi',apiName=apiName)}}</td>

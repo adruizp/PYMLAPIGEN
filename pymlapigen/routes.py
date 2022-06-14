@@ -637,8 +637,15 @@ def post_import():
 def defaultApiRoute():
     """JSON Home route.
     """
+    global apis
+
+    generatedApis = {}
+    for key in apis.keys():
+        generatedApis[key] = "/api/" + key
+
     return jsonify({
-        "status": "Api is working"
+        "status": "Api is working",
+        "generatedApis" : generatedApis
     })
 
 
@@ -843,6 +850,7 @@ def loadApi():
         mail.send(msg)
 
     # API generation is complete. Ready attribute is set to True.
+    apis[apiName].step = 3
     apis[apiName].ready = True
 
     return jsonify({
