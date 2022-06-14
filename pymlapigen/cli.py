@@ -17,3 +17,5 @@ def cli():
     # Custom ip and port
     elif len(sys.argv) == 3:
         pymlapigen.flask_app.run(host=sys.argv[1],port=sys.argv[2])
+    else:
+        print("ERROR. This app only allows from 0 to 2 input parameters")

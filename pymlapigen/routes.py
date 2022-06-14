@@ -346,7 +346,7 @@ def post_load_3(apiName):
             # Mail parameters
             msg = Message('API generation complete',
                           sender=flask_app.config["MAIL_USERNAME"], recipients=[email])
-            msg.body = "The API has been generated successfully and its currently operable."
+            msg.body = "The API " + apiName + " has been generated successfully and its currently operable."
 
             # Send email
             mail.send(msg)
@@ -845,7 +845,7 @@ def loadApi():
         # Email parameters
         msg = Message(
             'API generation complete', sender='tfgadrianruizparra@gmail.com', recipients=[data["email"]])
-        msg.body = "The API has been generated successfully and its currently operable."
+        msg.body = "The API " + apiName + "  has been generated successfully and its currently operable."
         # Send email
         mail.send(msg)
 

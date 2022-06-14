@@ -1,6 +1,6 @@
-====================
-Endpoints JSON (WIP)
-====================
+==============
+Endpoints JSON
+==============
 
 En esta sección se comentarán los distintos endpoints para peticiones HTTP (GET y POST) de la aplicación.
 
