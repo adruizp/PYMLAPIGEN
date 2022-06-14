@@ -9,7 +9,7 @@ IP y puerto para la aplicación
 
 Es posible elegir la **ip** y el **puerto** en el que se va a alojar la aplicación.
 
-**Por defecto**, al ejecutar la aplicación, esta se despliega en el ip **localhost** y en el puerto **5000** (http://localhost:5000/). Estos son los parámetros por defecto del **framework** ``Flask <https://flask.palletsprojects.com/en/2.1.x/>``__.
+**Por defecto**, al ejecutar la aplicación, esta se despliega en el ip **localhost** y en el puerto **5000** (http://localhost:5000/). Estos son los parámetros por defecto del **framework** `Flask <https://flask.palletsprojects.com/en/2.1.x/>`__.
 
 Sin embargo, si deseamos alojar la aplicación en otra dirección o puerto, a la hora de ejecutar la aplicación es posible incluir dos **parámetros de entrada opcionales**:
 
