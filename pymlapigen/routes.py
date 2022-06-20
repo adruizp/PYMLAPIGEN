@@ -83,8 +83,8 @@ def post_load_0():
     if apiName in apis:
         return render_template("load_0.html", error="There is already an API generated with that name. Try other name.")
 
-    if apiName == "api":
-        return render_template("load_0.html", error="The name of the Api cannot be \"api\". Try other name.")
+    if apiName in ("api","import"):
+        return render_template("load_0.html", error="The name of the Api cannot be \"" + apiName + "\". Try other name.")
 
     # Gets the form separator
     separator = request.form['separator']
@@ -597,8 +597,9 @@ def post_import():
     if apiName in apis:
         return render_template("import.html", error="There is already an API generated with that name. Try other name.")
 
-    if apiName == "api":
-        return render_template("import.html", error="The name of the Api cannot be \"api\". Try other name.")
+    if apiName in ("api","import"):
+        return render_template("import.html", error="The name of the Api cannot be \"" + apiName + "\". Try other name.")
+
 
     # Gets the form import file
     uploaded_file = request.files['file']
@@ -760,8 +761,8 @@ def loadApi():
     if apiName in apis:
         return jsonify({"error": "There is already an API generated with that name. Try other name."})
 
-    if apiName == "api":
-        return jsonify({"error": "The name of the Api cannot be \"api\". Try other name."})
+    if apiName in ("api","import"):
+        return jsonify({"error": "The name of the Api cannot be \"" + apiName + "\". Try other name."})
 
     # Gets the dataset
     apis[apiName] = load_json(data["dataset"])
