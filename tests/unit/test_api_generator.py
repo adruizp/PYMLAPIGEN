@@ -32,6 +32,11 @@ def test_load_json():
 
 
 def test_api_params(classification_api):
+    """
+    GIVEN a classification api
+    WHEN a new api is generated
+    THEN check the different attributes of the api
+    """
     assert classification_api.inputLabel == "species"
     assert classification_api.getInputLabel() == "species"
     assert classification_api.modelType == "GNB"

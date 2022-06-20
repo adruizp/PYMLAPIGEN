@@ -293,7 +293,6 @@ def post_load_3(apiName):
 
     # Sets the algorithm params for the API
     for i, key in enumerate(algorithmParams):
-
         tipo = type(algorithmParams[key])
 
         if(inputParams[i] != "None"):
