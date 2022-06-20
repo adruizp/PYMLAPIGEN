@@ -1,6 +1,8 @@
 import pytest
 import pymlapigen, os
+from pathlib import Path
 
+resources = Path(__file__).parent / "resources"
 
 @pytest.fixture()
 def app():
@@ -14,7 +16,16 @@ def app():
 def client(app):
     return app.test_client()
 
-
 @pytest.fixture()
-def runner(app):
-    return app.test_cli_runner()
+def classification_api():
+    api = pymlapigen.api_generator.load_csv(resources / "iris.csv", separator=",")
+    api.processNanNull("drop")
+    api.setInputLabel("species")
+    api.setAlgorithm("Classification","GNB")
+    api.setAlgorithmParams({})
+    api.setTestSize(0.3)
+    api.setDropColumns([])
+    api.step = 3
+    api.ready = True
+    api.trainModel()
+    return api
