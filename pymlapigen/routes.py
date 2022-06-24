@@ -1,5 +1,4 @@
 # Imports
-from re import A
 from pymlapigen.api_generator import load_csv, load_json
 from pymlapigen import flask_app
 
