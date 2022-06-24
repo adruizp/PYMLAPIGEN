@@ -2,7 +2,7 @@
 from pymlapigen.api_generator import load_csv, load_json
 from pymlapigen import flask_app
 
-from flask import jsonify, render_template, request, redirect, url_for, send_file, abort
+from flask import jsonify, render_template, request, redirect, url_for, send_file
 from flask_mail import Mail, Message
 from io import BytesIO
 import os
