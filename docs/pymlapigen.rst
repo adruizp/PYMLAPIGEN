@@ -7,7 +7,7 @@ Documentación Código Fuente
 Módulo api\_generator
 ---------------------
 
-Este módulo se encarga de generar y gestionar una API.
+Este módulo se encarga de realizar y gestionar un experimento de Machine Learning.
 
 .. automodule:: pymlapigen.api_generator
    :members:

@@ -60,6 +60,9 @@ def load_json(inputJson):
 
 
 class API_Generator:
+    """Manages a Machine Learning experiment
+    """
+    
     def __init__(self, dataset):
         """API_Generator's constructor
 

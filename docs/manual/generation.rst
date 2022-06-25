@@ -1,8 +1,8 @@
-======================
-Opciones de generación
-======================
+===========================
+Opciones de experimentación
+===========================
 
-En esta sección se comentará todas las **opciones** de las que se dispone a la hora de **generar una API** a través de un experimento.
+En esta sección se comentará todas las **opciones** de las que se dispone a la hora de **realizar un experimento** de Machine Learning.
 
 Paso 1 - Nombre y dataset CSV
 -----------------------------
