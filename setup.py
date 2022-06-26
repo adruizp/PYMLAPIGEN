@@ -11,7 +11,7 @@ install_requires = [
 
 setup(
     name = 'pymlapigen',
-    version='0.1',
+    version='1',
     description='Aplicación TFG Adrián Ruiz Parra',
     author='Adrián Ruiz',
     author_email='adruizp@alumnos.unex.es',

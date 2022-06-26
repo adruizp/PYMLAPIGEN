@@ -22,7 +22,7 @@ copyright = '2022, Adrian Ruiz Parra'
 author = 'Adrian Ruiz Parra'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '1'
 
 
 # -- General configuration ---------------------------------------------------
