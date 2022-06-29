@@ -1,3 +1,7 @@
+/**
+ * Muestra u oculta la tabla de predicciones
+ */
+
 var table = document.getElementById("predictionTable")
 table.style.display = 'none'
 

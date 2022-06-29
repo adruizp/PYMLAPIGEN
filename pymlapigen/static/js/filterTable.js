@@ -1,3 +1,7 @@
+/**
+ * Filtra el dataset del experimento
+ */
+
 var filterDiv = document.querySelector(".filter").cloneNode(true)
 filterDiv.querySelector('.minus').style.display = ''
 

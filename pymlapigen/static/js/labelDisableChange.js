@@ -1,3 +1,7 @@
+/**
+ * Deshabilita el atributo objetivo en experimentos de aprendizaje no supervisado
+ */
+
 var labelSelector = document.getElementById("inputLabel")
 var labelTextIndicator = document.getElementById("clusteringSelected")
 var select = document.getElementById("modelType")
