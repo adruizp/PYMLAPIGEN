@@ -363,7 +363,8 @@ def destroy(apiName):
         apiName (str): Name of the API to destroy
     """
     global apis
-    del apis[apiName]
+    if apiName in apis:
+        del apis[apiName]
     return redirect(url_for('home'))
 
 
