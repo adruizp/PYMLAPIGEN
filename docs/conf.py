@@ -63,7 +63,7 @@ html_theme = 'sphinx_rtd_theme'
 html_logo = '_static/unex.png'
 html_theme_options = {
 }
-html_favicon = '..\\pymlapigen\\static\\favicon.ico'
+html_favicon = '_static/favicon.ico'
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
