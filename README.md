@@ -12,4 +12,4 @@ To install and use this tool:
     * `pymlapigen`
 * Visit [localhost:5000](http://localhost:5000)
 
-You can either clone the repository and run `python run.py`.
+You can either clone the repository and run `python run.py` or `python3 run.py`.
