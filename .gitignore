@@ -5,7 +5,6 @@ pymlapigen.egg-info/
 # Cache files
 __pycache__/
 pymlapigen/__pycache__
-pymlapigen/static/files
 
 # Sphinx documentation
 docs/_build/
