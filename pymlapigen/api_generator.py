@@ -245,11 +245,11 @@ class API_Generator:
         self.testSize = float(testSize)
 
     def setPositiveLabel(self, positiveLabel=1):
-        """Introduce el valor de la variable objetivo positivo para los experimentos de clasificación binaria.
-           Gracias a este valor positivo, se podrán realizar los cálculos de TP,FP,TN,FN
+        """Sets the positive label value for binary classification problems.
+           Thanks to this positive value, it will be possible to perform the TP,FP,TN,FN calculations 
 
         Args:
-            positiveLabel (any, optional): Valor de la variable objetivo positivo. Defaults to 1.
+            positiveLabel (any, optional): Positive label value. Defaults to 1.
         """
         typeLabel = type(self.getPossibleLabels()[0])
         self.positiveLabel = typeLabel(positiveLabel)
@@ -665,7 +665,7 @@ class API_Generator:
         return df
 
     def __clean_nan_null_input_dataframe(self, inputDf):
-        """Metodo privado. Cleans the missing value in order to make predictions.
+        """Private method that cleans the missing value in order to make predictions.
 
         Args:
             inputDf (Pandas Dataframe): Input data to be cleaned.

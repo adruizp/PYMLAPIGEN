@@ -203,10 +203,10 @@ def post_load_2(apiName):
     # API's ready attribute is set to False due to it needs training and evaluation
     apis[apiName].ready = False
 
-    # Gets the algoritmo para el modelo
+    # Gets the algorithm for the model
     modelType = request.form['modelType']
 
-    # A partir del algoritmo escogido, se obtiene el tipo de problema ML (Clasificación, Regresión o Clustering)
+    # Selects the ML learning type problem from algorithm
     classification = ["GNB", "SVC", "KNN", "DT", "RF"]
     regression = ["LR", "SVR", "SGDR", "KR", "GBR"]
     clustering = ["KM", "AP", "MS", "MKM"]
@@ -220,12 +220,12 @@ def post_load_2(apiName):
     else:
         mltype = "Unknown"
 
-    # Obtiene la variable objetivo y la carga en la API
+    # Gets the label and sets it
     if mltype != "Clustering":
         inputLabel = request.form['inputLabel']
         apis[apiName].setInputLabel(inputLabel)
     
-    # Carga el tipo de problema ML y el algoritmo en la API
+    # Sets the algorithm and ML learning type 
     apis[apiName].setAlgorithm(mltype, modelType)
 
 

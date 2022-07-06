@@ -15,10 +15,10 @@ UPLOAD_FOLDER = 'static/files'
 #MAIL_PORT = 465
 """ Mail port for Flask-Mail """
 
-#MAIL_USERNAME = 'tfgadrianruizparra@gmail.com'
+#MAIL_USERNAME = ''
 """ Mail username for Flask-Mail """
 
-#MAIL_PASSWORD = 'wodacaphzdxslqdi'
+#MAIL_PASSWORD = ''
 """ Mail password for Flask-Mail """
 
 #MAIL_USE_TLS = False
